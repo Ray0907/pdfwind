@@ -1,6 +1,6 @@
 <script setup>
-import { invoiceModernSample } from "~~/pdfwind/src/blocks/index.js";
-import { themeNames } from "~~/pdfwind/src/themes/index.js";
+import { invoiceModernSample } from "pdfwind";
+import { themeNames } from "pdfwind/themes/index";
 
 useHead({ title: "pdfwind in Nuxt", htmlAttrs: { lang: "en" } });
 const theme = ref("default");

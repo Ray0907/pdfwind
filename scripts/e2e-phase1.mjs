@@ -1,6 +1,8 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 1 E2E: renderPdf in Node + in Chromium (via Vite playground). Writes out/*.pdf and out/report.md.
 import { writeFileSync, mkdirSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync } from "./lib/tools.mjs";
 import { h } from "vue";
 import { createServer } from "vite";
 import { chromium } from "playwright-core";

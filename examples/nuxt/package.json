@@ -12,6 +12,7 @@
   "dependencies": {
     "@vue/server-renderer": "^3.5.43",
     "nuxt": "^4.5.2",
+    "pdfwind": "file:../..",
     "qrcode": "^1.5.4",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3",

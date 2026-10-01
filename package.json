@@ -1,1 +1,63 @@
-{"name":"pdfwind","private":true,"type":"module","dependencies":{"@vue/server-renderer":"^3.5.43","qrcode":"^1.5.4","tailwind-merge":"^3.7.0","tailwindcss":"^4.3.3","takumi-pdf":"^0.15.0","vue":"^3.5.43"},"devDependencies":{"@vitejs/plugin-vue":"^6.0.9","axe-core":"^4.13.0","jsqr":"^1.4.0","playwright-core":"^1.63.0","vite":"^8.3.1"}}
+{
+  "name": "pdfwind",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vue 3 and Tailwind v4 PDF components rendered with Takumi",
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/Ray0907/pdfwind.git" },
+  "homepage": "https://github.com/Ray0907/pdfwind#readme",
+  "bugs": { "url": "https://github.com/Ray0907/pdfwind/issues" },
+  "keywords": ["pdf", "vue", "vue3", "tailwindcss", "takumi", "invoice"],
+  "engines": { "node": ">=22.12.0" },
+  "packageManager": "pnpm@10.32.1",
+  "sideEffects": ["**/*.css", "**/*.vue"],
+  "files": ["src", "fonts/*.woff2", "fonts/OFL-*.txt", "LICENSE", "THIRD_PARTY_NOTICES.md", "README.md", "llms*.txt"],
+  "exports": {
+    ".": "./src/index.js",
+    "./node": "./src/render/node.js",
+    "./browser": "./src/browser.js",
+    "./themes/*": "./src/themes/*.js",
+    "./theme-css/*": "./src/themes/*.css",
+    "./fonts/*": "./fonts/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build:playground": "vite build",
+    "check": "node scripts/check-tokens.mjs && node scripts/gen-llms.mjs --check",
+    "test": "node scripts/test.mjs",
+    "test:all": "node scripts/test.mjs --all",
+    "e2e:phase1": "node scripts/e2e-phase1.mjs",
+    "e2e:phase1-headed": "node scripts/e2e-phase1-headed.mjs",
+    "e2e:phase2a": "node scripts/e2e-phase2a.mjs",
+    "e2e:phase2b": "node scripts/e2e-phase2b.mjs",
+    "e2e:phase3a": "node scripts/e2e-phase3a.mjs",
+    "e2e:phase3b1": "node scripts/e2e-phase3b1.mjs",
+    "e2e:phase3b2": "node scripts/e2e-phase3b2.mjs",
+    "e2e:phase4a": "node scripts/e2e-phase4a.mjs",
+    "e2e:phase4b": "node scripts/e2e-phase4b.mjs",
+    "e2e:phase5": "node scripts/e2e-phase5.mjs",
+    "e2e:phase5b": "node scripts/e2e-phase5b.mjs",
+    "e2e:static": "node scripts/e2e-static.mjs",
+    "e2e:consumer": "node scripts/e2e-consumer.mjs",
+    "screenshots": "sh scripts/screenshots.sh",
+    "gen:llms": "node scripts/gen-llms.mjs"
+  },
+  "dependencies": {
+    "@vue/server-renderer": "^3.5.43",
+    "qrcode": "^1.5.4",
+    "tailwind-merge": "^3.7.0",
+    "tailwindcss": "^4.3.3",
+    "takumi-pdf": "^0.15.0"
+  },
+  "peerDependencies": { "vue": "^3.5.43" },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.9",
+    "axe-core": "^4.13.0",
+    "jsqr": "^1.4.0",
+    "playwright-core": "^1.63.0",
+    "vite": "^8.3.1",
+    "vue": "^3.5.43"
+  }
+}

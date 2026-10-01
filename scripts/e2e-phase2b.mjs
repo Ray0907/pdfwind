@@ -1,3 +1,5 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 2b E2E: Table, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage
 // + oversized break-inside-avoid content for every such component. Real evidence: extracted text, bbox geometry,
 // pixels, page breaks, QR decoding (jsQR, dev-only), image/URL handling. Writes out/phase2b/*.pdf, *.png, report.md.

@@ -1,7 +1,10 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 5 E2E: colors are tokens (guard), dark theme + painted paper, playground chrome (light/dark/toggle/axe), llms.txt, the Nuxt example,
 // the README showcase and images. Writes out/phase5/ (report.md, pdf/, screenshots).
 import { writeFileSync, readFileSync, mkdirSync, rmSync, existsSync, mkdtempSync } from "node:fs";
-import { execFileSync, spawn } from "node:child_process";
+import { execFileSync } from "./lib/tools.mjs";
+import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { createServer as netServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -23,7 +26,10 @@ const check = (group, name, pass, detail = "", info = false) => rows.push({ grou
 const norm = (s) => s.replace(/\s+/g, " ").trim();
 const f2 = (n) => (Math.round(n * 100) / 100).toString();
 const sh = (c, a, o = {}) => execFileSync(c, a, { encoding: "utf8", maxBuffer: 1 << 28, ...o });
-const section = async (g, fn) => { try { await fn(); } catch (e) { check(g, "section ran without throwing", false, String(e?.stack ?? e).split("\n").slice(0, 3).join(" | ")); } };
+const section = async (g, fn) => {
+  if (g === "nuxt" && process.env.PDFWIND_OFFLINE === "1") { rows.push({ group: g, name: "Nuxt install/build/routes/preview", skip: true, detail: "PDFWIND_OFFLINE=1: registry install excluded; run pnpm e2e:phase5 for Nuxt checks" }); return; }
+  try { await fn(); } catch (e) { check(g, "section ran without throwing", false, String(e?.stack ?? e).split("\n").slice(0, 3).join(" | ")); }
+};
 const freePort = () => new Promise((res) => { const s = netServer(); s.listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => res(p)); }); });
 const AXE = require.resolve("axe-core/axe.min.js");
 const cssVar = (theme, name) => readFileSync(`src/themes/${theme}.css`, "utf8").match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1].toLowerCase();
@@ -217,7 +223,7 @@ try {
       await p.screenshot({ path: `${OUT}/${which === "app" ? "playground" : "builder"}-${scheme}-1280.png` }); await cx.close();
     }
   };
-  try { const hb = await chromium.launch({ headless: false }); await shoot(hb); await hb.close(); } catch (e) { headed = false; const hb = await chromium.launch(); await shoot(hb); await hb.close(); }
+  try { if (process.env.PDFWIND_HEADED !== "1") throw new Error("headless run"); const hb = await chromium.launch({ headless: false }); await shoot(hb); await hb.close(); } catch (e) { headed = false; const hb = await chromium.launch(); await shoot(hb); await hb.close(); }
   check("screenshots", `1280px screenshots of the playground and the Theme Builder in light and dark (${headed ? "headed Chromium: the PDF is visible" : "headless fallback: the PDF area is blank"})`, ["playground-light-1280.png", "playground-dark-1280.png", "builder-light-1280.png", "builder-dark-1280.png"].every((f) => existsSync(`${OUT}/${f}`)), `${OUT}/{playground,builder}-{light,dark}-1280.png`);
 } catch (e) { check("browser", "browser run", false, String(e?.stack ?? e).slice(0, 400)); }
 finally { await browser?.close(); await server?.close(); }
@@ -279,7 +285,7 @@ await section("nuxt", async () => {
     const t0 = Date.now(), build = spawn("pnpm", ["build"], { cwd: ex, stdio: "pipe" }); let bl = ""; build.stdout.on("data", (d) => { bl += d; }); build.stderr.on("data", (d) => { bl += d; });
     const bcode = await new Promise((r) => build.on("close", r));
     check(g, "nuxt build succeeds (Nitro bundles the server route: Vue SFCs via the vue plugin, wasm/fonts/CSS as server assets)", bcode === 0 && /Build complete/.test(bl) && existsSync(`${ex}/.output/server/index.mjs`), `exit ${bcode} in ${((Date.now() - t0) / 1000).toFixed(0)}s; ${(bl.match(/Total size: [^\n]*/) ?? [""])[0]}`);
-    const port = await freePort(), srv = spawn("node", [".output/server/index.mjs"], { cwd: ex, env: { ...process.env, PORT: String(port), NITRO_PORT: String(port) }, stdio: "pipe", detached: true }); procs.push(srv);
+    const port = await freePort(), srv = spawn("node", [".output/server/index.mjs"], { cwd: ex, env: { ...process.env, PORT: String(port), NITRO_PORT: String(port), NITRO_HOST: "127.0.0.1" }, stdio: "pipe", detached: true }); procs.push(srv);
     let sl = ""; srv.stdout.on("data", (d) => { sl += d; }); srv.stderr.on("data", (d) => { sl += d; });
     const up = await wait(`http://127.0.0.1:${port}/api/invoice.pdf`);
     const get = async (q) => { const r = await fetch(`http://127.0.0.1:${port}/api/invoice.pdf${q}`); return { status: r.status, type: r.headers.get("content-type"), body: Buffer.from(await r.arrayBuffer()) }; };
@@ -368,9 +374,9 @@ await section("readme", async () => {
 
 await close();
 const groups = [...new Set(rows.map((r) => r.group))];
-const real = rows.filter((r) => !r.info);
-const md = ["| # | group | check | result | detail |", "|---|---|---|---|---|", ...rows.map((r, i) => `| ${i + 1} | ${r.group} | ${r.name} | ${r.info ? "INFO" : r.pass ? "PASS" : "FAIL"} | ${r.detail.replace(/\|/g, "\\|").replace(/\n/g, "<br>")} |`)].join("\n");
-const total = `${real.filter((r) => r.pass).length}/${real.length} pass (+${rows.length - real.length} info rows)`;
+const real = rows.filter((r) => !r.info && !r.skip);
+const md = ["| # | group | check | result | detail |", "|---|---|---|---|---|", ...rows.map((r, i) => `| ${i + 1} | ${r.group} | ${r.name} | ${r.skip ? "SKIP" : r.info ? "INFO" : r.pass ? "PASS" : "FAIL"} | ${r.detail.replace(/\|/g, "\\|").replace(/\n/g, "<br>")} |`)].join("\n");
+const total = `${real.filter((r) => r.pass).length}/${real.length} pass (+${rows.filter((r) => r.info).length} info rows, ${rows.filter((r) => r.skip).length} skip)`;
 const summary = groups.map((g) => `${g}: ${real.filter((r) => r.group === g && r.pass).length}/${real.filter((r) => r.group === g).length}`).join(" · ");
 writeFileSync(`${OUT}/report.md`, `# Phase 5 E2E\n\n${md}\n\n${total}\n\n${summary}\n`);
 console.log(md + `\n\n${total}\n${summary}`);

@@ -1,3 +1,5 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 2a E2E: 14 components x every variant. Renders each demo (playground/demos.js) in Node, checks text, geometry,
 // pixels and page breaks with poppler, then renders the same demos in Chromium and compares text.
 // Writes out/phase2a/*.pdf, *.png (every page) and report.md.

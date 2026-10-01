@@ -1,5 +1,5 @@
 // Shared helpers for the E2E scripts: load SFCs in Node through Vite SSR, and inspect PDFs with poppler.
-import { execFileSync } from "node:child_process";
+import { execFileSync } from "./tools.mjs";
 import { createServer } from "vite";
 
 const sh = (cmd, args, opts = {}) => execFileSync(cmd, args, { encoding: "utf8", maxBuffer: 1 << 28, ...opts });

@@ -1,19 +1,24 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 3a E2E: the six invoice blocks. Text for every section, money formatting + totals math from props, 60-item multi-page
 // invoices (header repeat, totals never split, footer counter every page, nothing clipped/overlapped), CJK, class passthrough,
-// Chromium parity, and side-by-side compare PNGs against pdfcn's reference renders (/tmp/pdfcn-ref).
+// Chromium parity, and optional side-by-side comparisons against the cached public pdfcn demo.
 // Writes out/phase3a/*.pdf, compare/*.png and report.md.
 import { writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync } from "./lib/tools.mjs";
 import { createServer } from "vite";
 import { chromium } from "playwright-core";
 import { load, pageCount, allText, words, find, raster, colorStats, fonts, hex } from "./lib/pdf.mjs";
 
-const OUT = "out/phase3a", REF = "/tmp/pdfcn-ref";
+import { REF, fetchRefs } from "./fetch-pdfcn-refs.mjs";
+const refs = await fetchRefs(["classic", "consultant", "corporate", "creative", "minimal", "modern"].map((n) => `invoice-${n}`));
+const OUT = "out/phase3a";
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/compare`, { recursive: true });
 
 const rows = [];
 const check = (group, name, pass, detail = "") => rows.push({ group, name, pass: !!pass, detail: String(detail) });
+const skipCompare = (group, name) => rows.push({ group, name, pass: true, skip: true, detail: refs.reason || "reference unavailable" });
 const near = (a, b, tol) => Math.abs(a - b) <= tol;
 const f1 = (n) => (Math.round(n * 10) / 10).toString();
 const PAGE_H = 841.89;
@@ -57,14 +62,15 @@ for (const [name, b] of Object.entries(BLOCKS)) await section(`invoice-${name}`,
   const want = [...items.map((i) => fmt(line(i))), fmt(sub), fmt(tax), fmt(tot)], missM = want.filter((s) => !txt.includes(s));
   check(g, "defaults: line totals, subtotal, tax, total computed from the items and formatted $x,xxx.xx", !missM.length, missM.length ? `missing ${missM.join(", ")}` : `total ${fmt(tot)} = ${fmt(sub)} + ${fmt(tax)}`);
   const px = raster(file(name), 1, { dpi: 60, png: `${OUT}/ours-${name}` });
-  if (existsSync(`${REF}/invoice-${name}-1.png`)) execFileSync("magick", [`${OUT}/ours-${name}.png`, "-size", "8x702", "xc:#d4d4d8", `${REF}/invoice-${name}-1.png`, "+append", `${OUT}/compare/invoice-${name}-1.png`]);
-  check(g, "side-by-side compare PNG written (ours left, pdfcn reference right)", existsSync(`${OUT}/compare/invoice-${name}-1.png`), `out/phase3a/compare/invoice-${name}-1.png`);
+  if (refs.available?.has(`invoice-${name}`) && existsSync(`${REF}/invoice-${name}-1.png`)) execFileSync("magick", [`${OUT}/ours-${name}.png`, "-size", "8x702", "xc:#d4d4d8", `${REF}/invoice-${name}-1.png`, "+append", `${OUT}/compare/invoice-${name}-1.png`]);
+  if (refs.available?.has(`invoice-${name}`)) check(g, "side-by-side compare PNG written (ours left, pdfcn reference right)", existsSync(`${OUT}/compare/invoice-${name}-1.png`), `out/phase3a/compare/invoice-${name}-1.png`);
+  else skipCompare(g, "side-by-side comparison");
   // same-structure check against the reference PDF: anchors must sit where pdfcn puts them (tolerances in pt)
-  if (existsSync(`${REF}/invoice-${name}.pdf`)) {
+  if (refs.available?.has(`invoice-${name}`)) {
     const o = (t) => find(W(name, 1), t), r = (t) => find(words(`${REF}/invoice-${name}.pdf`, 1), t);
     const anchors = [["invoice number", b.sample.invoiceNumber, 8, 36], ["table header", b.header, 8, 30], ["footer page counter", "Page", 6, 4]].filter(([l]) => !(name === "creative" && l === "footer page counter")).map(([label, t, dx, dy]) => { const a = o(t), c = r(t); return { label, ok: !!a && !!c && near(a.x0, c.x0, dx) && near(a.y0, c.y0, dy), d: a && c ? `dx ${f1(a.x0 - c.x0)} dy ${f1(a.y0 - c.y0)}` : "word missing" }; });
     check(g, "layout anchors vs the pdfcn reference render: invoice number, table header, footer counter (x +-6..8pt, y +-4..36pt)", anchors.every((x) => x.ok), anchors.map((x) => `${x.label}: ${x.d}`).join("; "));
-  }
+  } else skipCompare(g, "layout anchors vs pdfcn");
 });
 
 // ================= money formatting + totals math from props =================
@@ -190,9 +196,9 @@ try {
 finally { await browser?.close(); await server?.close(); await close(); }
 
 const groups = [...new Set(rows.map((r) => r.group))];
-const md = ["| # | group | check | result | detail |", "|---|---|---|---|---|", ...rows.map((r, i) => `| ${i + 1} | ${r.group} | ${r.name} | ${r.pass ? "PASS" : "FAIL"} | ${r.detail.replace(/\|/g, "\\|").replace(/\n/g, "<br>")} |`)].join("\n");
-const total = `${rows.filter((r) => r.pass).length}/${rows.length} pass`;
-const summary = groups.map((g) => `${g}: ${rows.filter((r) => r.group === g && r.pass).length}/${rows.filter((r) => r.group === g).length}`).join(" · ");
+const md = ["| # | group | check | result | detail |", "|---|---|---|---|---|", ...rows.map((r, i) => `| ${i + 1} | ${r.group} | ${r.name} | ${r.skip ? "SKIP" : r.pass ? "PASS" : "FAIL"} | ${r.detail.replace(/\|/g, "\\|").replace(/\n/g, "<br>")} |`)].join("\n");
+const total = `${rows.filter((r) => r.pass && !r.skip).length}/${rows.filter((r) => !r.skip).length} pass (+${rows.filter((r) => r.skip).length} skip)`;
+const summary = groups.map((g) => `${g}: ${rows.filter((r) => r.group === g && r.pass && !r.skip).length}/${rows.filter((r) => r.group === g && !r.skip).length}`).join(" · ");
 writeFileSync(`${OUT}/report.md`, `# Phase 3a E2E\n\n${md}\n\n${total}\n\n${summary}\n`);
 console.log(md + `\n\n${total}\n${summary}`);
 process.exit(rows.every((r) => r.pass) ? 0 : 1);

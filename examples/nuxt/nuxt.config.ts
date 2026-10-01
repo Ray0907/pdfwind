@@ -13,11 +13,14 @@ export default defineNuxtConfig({
     serverAssets: [{ baseName: "pdfwind", dir: "./pdfwind-assets" }],
     rollupConfig: { plugins: [vue()] },
     // the copied library must be bundled (not treated as an external package): `nuxt dev` otherwise imports it by a path it cannot resolve
-    externals: { inline: [/[\\/]pdfwind[\\/](src|fonts)[\\/]/] },
+    externals: { inline: ["pdfwind", /[\\/]pdfwind[\\/](src|fonts)[\\/]/] },
   },
   vite: {
     // the browser entry imports takumi-pdf/wasm-url and fonts as Vite assets
-    optimizeDeps: { exclude: ["takumi-pdf"] },
+    // qrcode is CommonJS: explicitly prebundle this transitive dependency of the excluded SFC package.
+    optimizeDeps: { exclude: ["pdfwind", "takumi-pdf"], include: ["pdfwind > qrcode"] },
+    // Scope SSR to Nuxt's server config; a top-level `ssr` option makes its serial client optimizer discard includes.
+    $server: { ssr: { noExternal: ["pdfwind"] } },
     server: { fs: { allow: [".."] } },
   },
 });

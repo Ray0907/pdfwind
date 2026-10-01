@@ -1,14 +1,18 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 3b-1 E2E: report-financial/marketing/operations/security (3 pages), event-agenda, event-ticket (7x3.5in), gift-certificate.
 // Text for every section, math from props, multi-page behavior, charts with pixel evidence, QR decode, page sizes vs the pdfcn
 // reference PDFs, CJK, class passthrough, Chromium parity, compare PNGs (ours left, pdfcn right). Writes out/phase3b1/.
 import { writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync } from "./lib/tools.mjs";
 import { createServer } from "vite";
 import { chromium } from "playwright-core";
 import jsQR from "jsqr";
 import { load, pageCount, allText, words, find, raster, colorStats, fonts, hex } from "./lib/pdf.mjs";
 
-const OUT = "out/phase3b1", REF = "/tmp/pdfcn-ref";
+import { REF, fetchRefs } from "./fetch-pdfcn-refs.mjs";
+const refs = await fetchRefs(["report-financial", "report-marketing", "report-operations", "report-security", "event-agenda", "event-ticket", "gift-certificate"]);
+const OUT = "out/phase3b1";
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/compare`, { recursive: true });
 
@@ -17,6 +21,7 @@ const TOK = { primary: "#18181b", info: "#0369a1", success: "#15803d", warning: 
 const hx = (c) => hex(TOK[c] ?? c);
 const rows = [];
 const check = (group, name, pass, detail = "") => rows.push({ group, name, pass: !!pass, detail: String(detail) });
+const skip = (group, name) => rows.push({ group, name, pass: true, skip: true, detail: refs.reason || "reference unavailable" });
 const near = (a, b, tol) => Math.abs(a - b) <= tol;
 const f1 = (n) => (Math.round(n * 10) / 10).toString();
 const norm = (s) => s.replace(/\s+/g, " ").trim();
@@ -54,16 +59,19 @@ for (const [name, b] of Object.entries(ALL)) await section(name, async () => {
   const g = name;
   check(g, "block exports renderOptions (page size / margins / footer band) that renderPdf accepts unchanged", !!b.opts && (b.opts.size !== undefined) && b.opts.margin !== undefined, `size ${JSON.stringify(b.opts.size)}, margin ${JSON.stringify(b.opts.margin)}, footer ${b.opts.footer ? "yes" : "none"}`);
   writeFileSync(file(name), await render(b, b.sample, { metadata: { title: name } }));
-  const [w, hh] = pageSize(file(name)), [rw, rh] = pageSize(`${REF}/${name}.pdf`);
-  check(g, "page size equals the pdfcn reference PDF (pdfinfo)", near(w, rw, 0.6) && near(hh, rh, 0.6), `ours ${f1(w)} x ${f1(hh)} pt, reference ${f1(rw)} x ${f1(rh)} pt`);
-  const np = pageCount(file(name)), rp = pageCount(`${REF}/${name}.pdf`);
-  if (REPORTS[name]) check(g, "3 pages like the reference (summary | chart + table | highlights)", np === 3 && rp === 3, `ours ${np}, reference ${rp}`);
+  const [w, hh] = pageSize(file(name)), np = pageCount(file(name));
+  if (refs.available?.has(name)) {
+    const [rw, rh] = pageSize(`${REF}/${name}.pdf`);
+    check(g, "page size equals the pdfcn reference PDF (pdfinfo)", near(w, rw, 0.6) && near(hh, rh, 0.6), `ours ${f1(w)} x ${f1(hh)} pt, reference ${f1(rw)} x ${f1(rh)} pt`);
+  } else skip(g, "page size vs pdfcn");
+  if (REPORTS[name]) check(g, "3 pages (summary | chart + table | highlights)", np === 3, `ours ${np}`);
   const need = Math.min(np, 3);
   for (let p = 1; p <= need; p++) {
     raster(file(name), p, { dpi: 60, png: `${OUT}/ours-${name}-${p}` });
-    if (existsSync(`${REF}/${name}-${p}.png`)) execFileSync("magick", [`${OUT}/ours-${name}-${p}.png`, "-size", "8x10", "xc:#d4d4d8", `${REF}/${name}-${p}.png`, "-background", "#d4d4d8", "-gravity", "north", "+append", `${OUT}/compare/${name}-${p}.png`]);
+    if (refs.available?.has(name) && existsSync(`${REF}/${name}-${p}.png`)) execFileSync("magick", [`${OUT}/ours-${name}-${p}.png`, "-size", "8x10", "xc:#d4d4d8", `${REF}/${name}-${p}.png`, "-background", "#d4d4d8", "-gravity", "north", "+append", `${OUT}/compare/${name}-${p}.png`]);
   }
-  check(g, "side-by-side compare PNGs written (ours left, pdfcn right)", Array.from({ length: need }, (_, i) => existsSync(`${OUT}/compare/${name}-${i + 1}.png`)).every(Boolean), `out/phase3b1/compare/${name}-1..${need}.png`);
+  if (refs.available?.has(name)) check(g, "side-by-side compare PNGs written (ours left, pdfcn right)", Array.from({ length: need }, (_, i) => existsSync(`${OUT}/compare/${name}-${i + 1}.png`)).every(Boolean), `out/phase3b1/compare/${name}-1..${need}.png`);
+  else skip(g, "side-by-side comparison");
 });
 
 // ================= reports =================
@@ -274,19 +282,19 @@ try {
     writeFileSync(file(`node-${nme}`), nodePdf);
     const a = norm(allText(file(`node-${nme}`)).join(" ")), c = norm(allText(file(`browser-${nme}`)).join(" "));
     if (a === c && pageCount(file(`node-${nme}`)) === pageCount(file(`browser-${nme}`))) same++; else diffs.push(`${nme} (pages ${pageCount(file(`node-${nme}`))}/${pageCount(file(`browser-${nme}`))})`);
-    const [w, hh] = pageSize(file(`browser-${nme}`)), [rw, rh] = pageSize(`${REF}/${nme}.pdf`);
+    const [w, hh] = pageSize(file(`browser-${nme}`)), [rw, rh] = pageSize(file(`node-${nme}`));
     if (!(near(w, rw, 0.6) && near(hh, rh, 0.6))) sizes.push(`${nme} ${f1(w)}x${f1(hh)} vs ${f1(rw)}x${f1(rh)}`);
   }
   check("browser", "Chromium renders all 7 blocks with text and page count identical to Node", same === 7, same === 7 ? `7/7 identical; render ms median ${[...ms].sort((x, y) => x - y)[3]}, max ${Math.max(...ms)}` : `differs: ${diffs.join(", ")}`);
-  check("browser", "Chromium page sizes match the reference too (ticket 504x252, A4 elsewhere): the playground just uses the block's options", !sizes.length, sizes.join("; ") || "7/7 sizes match");
+  check("browser", "Chromium page sizes match Node too (ticket 504x252, A4 elsewhere): the playground just uses the block's options", !sizes.length, sizes.join("; ") || "7/7 sizes match");
   check("browser", "no console errors or Vue warnings", errors.length === 0, errors.slice(0, 3).join(" | "));
 } catch (e) { check("browser", "browser run", false, String(e?.stack ?? e).slice(0, 300)); }
 finally { await browser?.close(); await server?.close(); await close(); }
 
 const groups = [...new Set(rows.map((r) => r.group))];
-const md = ["| # | group | check | result | detail |", "|---|---|---|---|---|", ...rows.map((r, i) => `| ${i + 1} | ${r.group} | ${r.name} | ${r.pass ? "PASS" : "FAIL"} | ${r.detail.replace(/\|/g, "\\|").replace(/\n/g, "<br>")} |`)].join("\n");
-const total = `${rows.filter((r) => r.pass).length}/${rows.length} pass`;
-const summary = groups.map((g) => `${g}: ${rows.filter((r) => r.group === g && r.pass).length}/${rows.filter((r) => r.group === g).length}`).join(" · ");
+const md = ["| # | group | check | result | detail |", "|---|---|---|---|---|", ...rows.map((r, i) => `| ${i + 1} | ${r.group} | ${r.name} | ${r.skip ? "SKIP" : r.pass ? "PASS" : "FAIL"} | ${r.detail.replace(/\|/g, "\\|").replace(/\n/g, "<br>")} |`)].join("\n");
+const total = `${rows.filter((r) => r.pass && !r.skip).length}/${rows.filter((r) => !r.skip).length} pass (+${rows.filter((r) => r.skip).length} skip)`;
+const summary = groups.map((g) => `${g}: ${rows.filter((r) => r.group === g && r.pass && !r.skip).length}/${rows.filter((r) => r.group === g && !r.skip).length}`).join(" · ");
 writeFileSync(`${OUT}/report.md`, `# Phase 3b-1 E2E\n\n${md}\n\n${total}\n\n${summary}\n`);
 console.log(md + `\n\n${total}\n${summary}`);
 process.exit(rows.every((r) => r.pass) ? 0 : 1);

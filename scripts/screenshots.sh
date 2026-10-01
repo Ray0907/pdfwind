@@ -5,7 +5,10 @@
 set -e
 cd "$(dirname "$0")/.."
 command -v pdftoppm >/dev/null || { echo "screenshots.sh: pdftoppm (poppler) not found" >&2; exit 1; }
-command -v magick >/dev/null || { echo "screenshots.sh: ImageMagick 7 'magick' not found" >&2; exit 1; }
+if ! command -v magick >/dev/null; then
+  command -v convert >/dev/null || { echo "screenshots.sh: install ImageMagick (brew install imagemagick / apt-get install imagemagick)" >&2; exit 1; }
+  magick() { convert "$@"; }
+fi
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 mkdir -p docs/images
 BG='#f4f4f5'; EDGE='#d4d4d8'

@@ -1,5 +1,5 @@
-import { InvoiceModern, InvoiceFooter, blockPage, invoiceModernSample } from "../../pdfwind/src/blocks/index.js";
-import { themeNames } from "../../pdfwind/src/themes/index.js";
+import { InvoiceModern, InvoiceFooter, blockPage, invoiceModernSample } from "pdfwind";
+import { themeNames } from "pdfwind/themes/index";
 
 // GET /api/invoice.pdf?theme=vivid&number=INV-2026-017&company=Acme%20Co&client=Globex&currency=EUR
 // Every parameter is optional and validated; a bad one is a 400 with a message that says what to send.

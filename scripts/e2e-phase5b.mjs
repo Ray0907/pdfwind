@@ -1,3 +1,5 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 5b E2E: the playground's interface review fixes, measured. App and Builder at 320 / 360 / 640 px (640 = 200% zoom of 1280), landmarks,
 // skip link and tab count, aria-current, hit areas, text sizes, theme descriptions, the 3-state toggle on one row, press/hover feedback,
 // the PdfPreview error banner with a simulated failed wasm fetch + Retry, and axe-core on the MAIN playground in light and dark.

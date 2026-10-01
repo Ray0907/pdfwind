@@ -1,15 +1,18 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 4a E2E: themes + fonts. Matrix of 11 themes (default + pdfcn's 9 + dark) x 20 blocks + the "every component" sampler:
 // fonts embedded per theme (pdffonts), theme colors by pixel, heading size ratios, page counts, overlap/clipping, footers/counters,
 // WCAG contrast (reported, never tweaked), CSS values vs pdfcn's theme files, font licences/sizes, then in Chromium: only the active
 // theme's fonts are fetched, switch latency, Node vs Chromium parity, picker keyboard/focus. Writes out/phase4a/ (report.md, PNG contact sheets).
 import { writeFileSync, mkdirSync, rmSync, existsSync, readFileSync, statSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync } from "./lib/tools.mjs";
 import { createServer } from "vite";
 import { chromium } from "playwright-core";
 import { load, pageCount, allText, words, find, raster, colorStats, hex } from "./lib/pdf.mjs";
 import { themes, themeNames, getTheme } from "../src/themes/index.js";
 
-const OUT = "out/phase4a", PDCN = "/private/tmp/pdfcn/apps/web/registry/themes";
+const OUT = "out/phase4a";
+const pdfcnThemes = JSON.parse(readFileSync(new URL("./fixtures/pdfcn-themes.json", import.meta.url), "utf8"));
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/pdf`, { recursive: true });
 
@@ -27,7 +30,7 @@ const B = await blocks();
 
 // ---- theme data straight from the CSS files and from pdfcn's TS theme files
 const cssVars = (name) => { const s = readFileSync(`src/themes/${name}.css`, "utf8"), v = {}; for (const m of s.matchAll(/--([a-z0-9-]+):\s*([^;]+);/g)) v[m[1]] = m[2].trim(); return v; };
-const pdfcnTheme = (name) => { let s = readFileSync(`${PDCN}/${name}.ts`, "utf8"); s = s.replace(/import[^;]*;/g, "").replace(/export const (\w+): PdfcnTheme =/, "globalThis.__T=").replace(/primitives: defaultPrimitives,/, ""); (0, eval)(s); return globalThis.__T; };
+const pdfcnTheme = (name) => pdfcnThemes[name];
 const kebab = (k) => k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 const css = Object.fromEntries(themeNames.map((t) => [t, { ...cssVars("default"), ...cssVars(t) }])); // a theme file may set colors only (dark): the rest comes from default.css
 const PDCN_THEMES = themeNames.filter((n) => n !== "default" && n !== "dark"); // the 9 themes ported from pdfcn
@@ -273,9 +276,12 @@ await section("sheets", async () => {
   for (const k of ["invoice-modern", "report-financial", "components-all"]) {
     const tiles = [];
     for (const t of themeNames) { const base = `${OUT}/tile-${k}-${t}`; raster(cells[t][k].file, 1, { dpi: 50, png: base }); tiles.push(`${base}.png`); }
-    const args = []; themeNames.forEach((t, i) => args.push("-label", t, tiles[i]));
-    execFileSync("montage", ["-font", "/System/Library/Fonts/Supplemental/Arial.ttf", ...args, "-tile", "6x2", "-geometry", "+8+8", "-pointsize", "16", "-background", "#e4e4e7", `${OUT}/themes-${k === "components-all" ? "components" : k}.png`]);
-    tiles.forEach((f) => rmSync(f));
+    // Plain append needs no system font (montage can demand one even with no labels).
+    // Tile order is themeNames, recorded in the report.
+    const sheets = [0, 1].map((i) => `${OUT}/row-${k}-${i}.png`);
+    sheets.forEach((f, i) => execFileSync("magick", [...tiles.slice(i * 6, i * 6 + 6), "-bordercolor", "#e4e4e7", "-border", "8", "+append", f]));
+    execFileSync("magick", [...sheets, "-background", "#e4e4e7", "-gravity", "west", "-append", `${OUT}/themes-${k === "components-all" ? "components" : k}.png`]);
+    [...tiles, ...sheets].forEach((f) => rmSync(f));
   }
   const want = ["themes-invoice-modern.png", "themes-report-financial.png", "themes-components.png"];
   check(g, "contact sheets written: all themes side by side for invoice-modern, report-financial and the components sampler", want.every((f) => existsSync(`${OUT}/${f}`) && statSync(`${OUT}/${f}`).size > 20000), want.map((f) => `${OUT}/${f}`).join(", "));

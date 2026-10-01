@@ -1,3 +1,5 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 1 headed E2E: real Chromium PDF viewer (headless has none). Opens a visible window. Writes out/report-headed.md.
 import { writeFileSync, mkdirSync } from "node:fs";
 import { createServer } from "vite";

@@ -1,6 +1,74 @@
-# pdfwind progress
+# Development history and technical notes
 
-## Phase 1: render core (after review round 1)
+Historical results below record the original phase runs, not current verification. See Pre-public preparation for this checkout. Earlier limitations may have been addressed in later phases. Run commands from the repository root.
+
+## Pre-public preparation
+
+All changes remain local and uncommitted on `main`, with HEAD still `fe13cc2`. Package version is 0.1.0 and `private: true` is retained. No publication, visibility change, remote release/tag, deployment or GitHub setting activation was performed.
+
+### Changes and commands
+
+- Portable references: `node scripts/fetch-pdfcn-refs.mjs` downloads the 20 public demo PDFs to the ignored `.cache/pdfcn-ref/`, with 15s HTTP timeouts and a 60s batch budget. Phases 3a/3b1/3b2 call it; offline/unavailable comparisons are explicit SKIP rows, excluded from pass counts, while local checks continue. All 20 references downloaded; a second invocation kept every PDF timestamp unchanged (`Idempotent: true`).
+- Theme fixture: `node scripts/vendor-pdfcn-themes.mjs <trusted-upstream-checkout>` reads upstream files without modifying them and writes nine themes' values to `scripts/fixtures/pdfcn-themes.json`. Phase4a now reads that fixture, not an upstream checkout. MIT attribution is in THIRD_PARTY_NOTICES. Contact sheets use plain ImageMagick append, with no machine-specific system font.
+- Commands: `pnpm dev`, `pnpm build:playground`, `pnpm check`, `pnpm test`, `pnpm test:all`, every `pnpm e2e:<phase>` alias, `pnpm e2e:static`, `pnpm e2e:consumer`, `pnpm screenshots`, `pnpm gen:llms`. [CONTRIBUTING](../../CONTRIBUTING.md) lists setup, poppler/ImageMagick/Chromium prerequisites and how to extend components/blocks/themes. A negative E2E run with poppler removed from PATH exited 1 before rendering and printed the install instructions (`out/prepublic/missing-tools.log`).
+- `pnpm test` is sequential, offline and headless; it ends with totals and exits nonzero on failure. References and Nuxt registry installation explicitly SKIP. `pnpm test:all` adds public comparisons, Nuxt and the packed consumer; the latter requires registry access for Vue/Vite/runtime dependencies, though pdfwind itself comes only from the local tarball. `pnpm e2e:phase1-headed` stays separate. Phases 4b/5 open viewer windows only with `PDFWIND_HEADED=1`.
+- Installable package: MIT metadata, Node >=22.12, Vue peer dependency, CSS/SFC sideEffects and a strict source/WOFF2/OFL/docs whitelist. Exports are `pdfwind`, `pdfwind/node`, `pdfwind/browser`, `pdfwind/themes/index`, `pdfwind/themes/builder`, `pdfwind/theme-css/<name>` (CSS, no extension in this alias), `pdfwind/fonts/<filename>`, and `pdfwind/package.json`. Runtime/dev/peer dependency rationale is in CONTRIBUTING.
+- `TMPDIR=<temp-parent> pnpm e2e:consumer` performs dry/real `npm pack`, recreates a script-owned consumer outside the checkout, installs the tarball, renders InvoiceModern/vivid/Chinese in Node, and builds/serves/drives a Vue `<PdfPreview>` production app. It checks extracted text, font families, vivid pixels and built wasm/font requests. Reports and the full packed file list: `out/consumer/report.md`, `out/consumer/pack.json`.
+- Nuxt uses the public package exports and resolves installed-package internals/assets for Nitro. Verified install, build, PDF routes/validation, production preview and dev preview. The first network run caught a real dev optimizer failure: transitive CommonJS qrcode had no default export. The configuration now includes `pdfwind > qrcode`; in Nuxt the SSR setting is under `vite.$server`, because a top-level `vite.ssr` made its serial client optimizer discard includes. The final phase5 run passed all 12 Nuxt checks; its server build reported 17.3 MB (9.75 MB gzip). Production E2E servers bind to loopback.
+- PLAN/PROGRESS moved here; README, llms generation and links updated. README now states alpha/Vue/SFC/CSS limitations and prominently credits pdfcn/PDFx. Contributor/security/conduct/changelog docs and issue/PR templates added. `pnpm gen:llms` reports 29 components and 20 blocks; `pnpm check` scans 88 files with 0 token violations and confirms both generated references are current.
+- Workflow files are local drafts: CI on Node 22 with pnpm/Chromium caches, offline E2Es, an optional continue-on-error reference job and report artifacts; Pages is manual workflow_dispatch only. `actionlint .github/workflows/ci.yml .github/workflows/pages.yml` passed (actionlint 1.7.12). Ruby's YAML parser loaded both files successfully. **GitHub Actions and Pages were NOT run or enabled.**
+
+### Final E2E results
+
+`TMPDIR=<temp-parent> pnpm test:all` completed with **1012 PASS, 0 FAIL, 0 SKIP (12 scripts)**. The ten existing phase totals match the supplied baseline. Static was also re-run in Node 24 and Node 22 after adding CDP transfer accounting (10/10 each); phase5 was re-run after binding its production server to loopback (66/66).
+
+| script | network-enabled PASS/total | offline Node 22 PASS/total | offline SKIP |
+|---|---:|---:|---:|
+| phase1 | 22/22 | 22/22 | 0 |
+| phase2a | 139/139 | 139/139 | 0 |
+| phase2b | 160/160 | 160/160 | 0 |
+| phase3a | 171/171 | 159/159 | 12 |
+| phase3b1 | 122/122 | 108/108 | 14 |
+| phase3b2 | 122/122 | 108/108 | 14 |
+| phase4a | 49/49 | 49/49 | 0 |
+| phase4b | 98/98 | 98/98 | 0 |
+| phase5 | 66/66 | 54/54 | 1 (Nuxt group) |
+| phase5b | 45/45 | 45/45 | 0 |
+| static | 10/10 | 10/10 | 0 |
+| consumer | 8/8 | excluded: registry install | — |
+
+Offline totals: **952 PASS, 0 FAIL, 41 SKIP (11 scripts)**. Report: `out/prepublic/ci-candidate-report.md`; network report: `out/runner/report.md`. All per-phase evidence is under `out/`. The separate native viewer run passed **4 checks + 2 INFO** (`out/report-headed.md`): median swap 231ms; zero sampled blank frames; the scroll-position INFO confirms it resets on replacement, not that it is preserved.
+
+Earlier preparation attempts did fail (shadowed SKIP helper, leftover reference readers, fontless montage, Nuxt optimizer). Those were corrected and re-run; the initial network run's 1009 PASS / 1 FAIL is preserved in `out/prepublic/initial-network-run.log`, not represented as a passing run.
+
+### Package and built payload measurements
+
+Final tarball `pdfwind-0.1.0.tgz`: **6,805,562 bytes packed; 7,080,158 bytes unpacked; 123 files**. The complete list is `out/consumer/pack.json`: 90 source files, 27 WOFF2/OFL assets and six root metadata/document files. No E2E fixtures/scripts, TTFs, scratch files, examples, playground or out/ were included.
+
+`pnpm build:playground` emits relative-base `dist-playground/`. Measured assets: **11,538,279 bytes** (plus 799-byte HTML), including **734,522 JS bytes**, **4,077,119 WASM bytes** and **5,424,340 Noto Sans TC bytes**. Vite reports a >500kB chunk warning; this is not a small initial payload.
+
+`pnpm e2e:static` serves that build under `/pdfwind/` with a plain loopback static server, not Vite dev. Showcase PDF, theme switch, Theme Builder and no-console-error checks all pass. Fresh-context first-render transfers (Chromium CDP encodedDataLength, response headers included, no HTTP compression):
+
+- English showcase: **5,121,036 HTTP bytes** (5,119,344 body bytes).
+- CJK sample invoice: **10,545,530 HTTP bytes** (10,543,684 body bytes).
+
+Every request/status/body/HTTP byte count is listed in `out/static/report.md`; `out/static/bundle.json` lists built asset sizes. These exclude in-memory generated PDF blob bytes and are not a promise about compressed production hosting. WASM and fonts load from built hashed assets under the subpath.
+
+### Clean-checkout validation and limits
+
+The literal requested local clone of HEAD installed successfully but **failed** `pnpm check`: `Command "check" not found`, exit 254. That is unavoidable while new source changes remain uncommitted. No commit was created to conceal it.
+
+A separate candidate validation overlaid the 194 tracked/pending preparation source files into that clone, excluding all scratch TTFs, stress files, node_modules, caches and out/. Under **Node 22.23.3**, `pnpm install --frozen-lockfile`, Chromium installation, `pnpm check` and `pnpm test` then passed (952/0/41 above). This validates the pending-source snapshot, **not an untouched committed checkout of fe13cc2**. Include every new preparation file in the eventual commit and repeat the literal clone before publishing. Logs: `out/prepublic/ci-original-check.log`, `ci-candidate.log`, `ci-static-report.md`.
+
+Local CI-command validation was on macOS with installed poppler/ImageMagick/Chromium, not Ubuntu. Ubuntu apt provisioning, Linux ImageMagick 6 execution, actual hosted Actions/Pages deployment and npm publication were not verified. Reference success, cache reuse and forced-offline mode were exercised; no real public-demo outage was forced. Headless previews are validated by their PDF bytes and poppler rasters, not native viewer screenshots.
+
+### Secrets and owner decisions
+
+Gitleaks 8.30.1 found no leaks in the tracked working-tree snapshot, pending-source snapshot or seven-commit history. Commands used: `gitleaks dir <tracked-source-snapshot> --redact`, `gitleaks git . --log-opts=--all --redact`, and `git log -p --all --no-ext-diff --no-color | gitleaks stdin --redact`. JSON/log artifacts: `out/prepublic/secrets-*`. This is a scanner result, not a guarantee of absence. The author email in history is an owner privacy decision; no history rewrite was performed. A whole tracked-tree machine-path grep found no matches in source/docs (exit 1 = none).
+
+Open decisions: unscoped/scoped publication form; npm name/org and GitHub owner/name availability (not checked); acceptance of public author-history/email exposure; when to remove the private flag; whether to enable Actions, Pages and private vulnerability reporting; demo domain; a private non-security conduct contact channel. No choice was made for the owner.
+
+## Phase 1: render core
 
 **Built**
 - `src/render/core.js`: `createRenderPdf(loadResources)`. One `PdfRenderer`, WASM init, fonts and compiled Tailwind are created lazily and reused. A rejected resource load or Tailwind compile is **not cached**: the next render retries. `uncoveredText` defaults to `"placeholder"`; the `"error"` message keeps takumi's glyph list (`U+D55C`) and appends the fix. `AbortSignal` via `signal.throwIfAborted()`.
@@ -43,12 +111,11 @@ Review items:
 - First browser render of a CJK doc still fetches the 5.3 MB Noto file (unicode-range slicing is later).
 - `themeCss` compiler cache is unbounded per distinct string.
 - No `src/index.ts` public exports or package `exports` map yet.
-- Nothing committed.
 
 ## Phase 2a: 14 layout / text components
 
 **Built** (`src/components/<Name>/<Name>.vue`, exported from `src/index.js`)
-Stack, Section, Card, Divider (+ private `DividerLine.vue`), KeepTogether, PageBreak, PageHeader, PageFooter, PageNumber, Watermark, Heading, Text, Link, List. Props, variants, sizes and defaults follow pdfcn's Takumi components (read each one first). PdfX (`/tmp/pdfx`, MIT) was cloned and skimmed for ideas; nothing copied.
+Stack, Section, Card, Divider (+ private `DividerLine.vue`), KeepTogether, PageBreak, PageHeader, PageFooter, PageNumber, Watermark, Heading, Text, Link, List. Props, variants, sizes and defaults follow pdfcn's Takumi components (read each one first). PdfX (`the upstream PDFx checkout`, MIT) was cloned and skimmed for ideas; nothing copied.
 - `src/themes/default.css`: pdfcn's `minimal` theme as Tailwind v4 tokens. Semantic colors via `@theme inline` + `:root` vars (background, foreground, muted, muted-foreground, primary, primary-foreground, border, accent, destructive, success, warning, info). `--spacing: 4pt` so `p-4` = 16pt = pdfcn `spacing[4]` (replaces Tailwind's 4px base on purpose); `--text-xs..3xl` = pdfcn's 10/12/15/18/22/28/36pt, `--text-body` 11pt, `--text-h1..h6` 24/20/16/14/12/10pt, `--spacing-paragraph|component|section` 14/18/36pt, radius 2/4/8pt. Loaded automatically by `renderPdf` (caller's `themeCss` goes after it).
 - `src/lib/ui.js`: `cn()` = `tailwind-merge` configured for the theme names (so `text-h1 text-primary` and `my-section my-2` merge correctly), `rest($attrs)`, `color()` (token name or raw CSS color, like pdfcn's `resolveColor`).
 - **Class passthrough**: every component sets `inheritAttrs:false` and renders `:class="cn(defaults, $attrs.class)"`, so a user's `class="p-1"` really overrides the default `p-3` (plain Vue fallthrough can't: Tailwind sorts by value, not attribute order). Cost: one extra dependency (`tailwind-merge`) and the 2-line pattern in each SFC.
@@ -83,12 +150,11 @@ Evidence per component: extracted text for every variant label; bbox geometry (g
 - Section `spacing`: md = 36pt (theme section gap) > lg = 32pt, as in pdfcn's minimal theme; kept for parity.
 
 **Known gaps**
-- pdfcn's Takumi renders could not be compared: `/private/tmp/pdfcn` has no installed deps or pre-rendered images and must not be touched. Taste was judged from its source values (sizes, gaps, radii) and my own PNGs, not side by side.
+- pdfcn's Takumi renders could not be compared: `the upstream pdfcn checkout` has no installed deps or pre-rendered images and must not be touched. Taste was judged from its source values (sizes, gaps, radii) and my own PNGs, not side by side.
 - `muted-foreground` (#a1a1aa on white, from pdfcn's minimal theme) is about 2.5:1 contrast: footer text, labels and page numbers are below WCAG AA for small text. Left as the parity default; a theme can darken it.
 - `tailwind-merge` only knows the theme names listed in `src/lib/ui.js`; a user-added `--text-*` name needs adding there.
 - Default `--spacing: 4pt` / `--text-*` replace Tailwind's scales: user classes like `p-4`, `text-sm` mean 16pt / 12pt, not 16px / 14px.
 - Not built (next phases): Table, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage; blocks; named themes (only `minimal` as default.css); `src/index.js` is not yet a published package (SFCs need Vite).
-- Nothing committed.
 
 ## Phase 2b: Table, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage
 
@@ -137,7 +203,6 @@ Mutation-checked (each turns its check red): `<thead>` -> `<tbody>`, QR rows dro
 - Alert/Badge use pdfcn's 2pt borders (Badge) and 4pt bars; same low `muted-foreground` contrast note as 2a.
 - `PdfImage` does not support `src: { uri, method, headers, body }` request options (use `options.images` with fetched bytes).
 - Remote images are not cached across `renderPdf` calls in Node (the browser HTTP cache covers it there).
-- Nothing committed.
 
 ## Phase 2b follow-ups (done before 3a)
 - Form hint: now `muted-foreground` at 65% (was 14%): 203 px of rgb(194,194,200) in the E2E, lighter than the label (luminance 195 vs 162). Check updated.
@@ -175,7 +240,7 @@ Mutation-checked: tax multiplier broken -> all six totals checks fail; `no-wrap`
 
 **Regression (all scripts re-run at the end of 3a):** phase 1 headless 22/22 (headed: 4 PASS + 2 INFO), 2a 139/139, 2b 160/160, 3a 171/171.
 2b changes: the long-table checks now say "every page that has rows" (the `td` break-avoid change moved the after-table paragraph onto its own last page, which is correct) and the footer check asserts the `tfoot` is drawn once right after the last row.
-Not done / next: blocks 3b (report-*, event-*, gift-certificate, lesson-plan, medical-intake-form, meeting-minutes, packing-slip, press-release, shipping-label, work-order). Nothing committed.
+Not done / next: blocks 3b (report-*, event-*, gift-certificate, lesson-plan, medical-intake-form, meeting-minutes, packing-slip, press-release, shipping-label, work-order). 
 
 ## Housekeeping before 3b-1
 - `LICENSE` (MIT, "pdfwind contributors"), `THIRD_PARTY_NOTICES.md` (pdfcn, shadcn-labs, MIT; PDFx, akii09, MIT; both licence texts copied verbatim and checked equal to the upstream `LICENSE` files), `README.md` (what it is, dev setup, playground, every E2E script, status, credits).
@@ -228,7 +293,7 @@ node scripts/e2e-phase3b2.mjs     # out/phase3b2/*.pdf, compare/<block>-N.png (o
 **Result: 122/122 PASS.** Per block: renderOptions exported, page size equals the reference PDF (pdfinfo), page count equals reference, all section text, defaults without props (no pdfcn text), class passthrough, CJK (Noto embedded). Plus: lesson total/accent/8 ruled lines/grid columns; medical field underline rules, checkbox outlines, medication grid rules, signature line, toggles; meeting statuses -> distinct badges, all-Complete mutation, optional parts omitted; packing math + EUR/de-DE; press order, accent quote bar, long body flows to page 2; label exact size, QR decodes (jsQR 300dpi), tracking-number mutation, "PAID" default; work-order totals incl. tax 0, 4 priority badge fills differ, signature rules; Chromium text + pages + size parity for all 7 and QR decode; no console errors.
 Mutation checks run by hand (not left in the repo): QR value forced to "WRONG" -> 3 shipping-label checks + the Chromium QR check fail; work-order tax computed on parts only -> 2 math checks fail. Both reverted; full run is green again.
 
-**Self-fix rounds**: 2 used (work-order overflow: explicit column widths + spacing; lesson-plan time/activity widths).
+Work-order overflow was resolved with explicit column widths and spacing; lesson-plan time/activity columns were also resized.
 
 **Where ours differs visually from pdfcn (see compare PNGs)**
 1. Font: Inter instead of Geist.
@@ -303,12 +368,12 @@ node scripts/e2e-phase4a.mjs     # out/phase4a/report.md, pdf/<theme>/<doc>.pdf,
 ```
 node scripts/e2e-phase4b.mjs     # out/phase4b/report.md, pdf/*.pdf, theme.css, builder-1280.png, builder-360.png, builder-360-preview.png
 ```
-(axe-core is a new dev dependency; screenshots use a headed Chromium window because headless shows an empty PDF viewer.)
+(axe-core is a dev dependency. Screenshots are headless by default; PDFWIND_HEADED=1 opts into visible PDF viewers.)
 
 **Result: 98/98 PASS** (+1 info row). Pure model: all 10 shipped CSS files parse clean, `toCss(fromCss(toCss(x)))` is a fixed point, 200 random states round trip, the importer reports unknown / out-of-range / bad hex / rgb() / fixed-scale / unbundled font / derived values, contrast equals an independent implementation (300 random pairs + textbook values). Browser: hex field and color picker change preview pixels, invalid hex and out-of-range numbers are rejected with linked messages and no state change, font selects embed the family (read from the PDF) and fetch only that family's file, margins shift the text ~48 pt and are reported as not applied for fixed-size documents (shipping-label stays 288x432), clone vivid equals the parsed theme, reset per control and Reset all, a slider drag of ~25 input events is one undo step, Ctrl/Cmd+Z / Shift+Z / Ctrl+Y restore exact text and pixels, limit 30 after 36 edits, reload restores the theme and document, garbage / invalid / blocked / full storage do not crash, export -> import in a fresh browser context is state-equal and pixel-equal (72 and 144 dpi), download and clipboard match the box, messy imports explain every line, contrast panel numbers and Pass/Fail words equal the script's own calculation for 3 states, keyboard-only run (every control kind), Tab visits all N stops in DOM order with a visible ring on each, hit areas >= 40 px at 1280 and 360, no `transition: all` and <= 200 ms ease-out, 0 ms under reduced motion, concentric radii (16 = 8 + 8), layout-shift ~0 and the previous PDF always visible, dark vs light chrome gives identical PDFs, axe-core zero violations in 4 scans (1280 light, with error messages shown, 1280 dark, 360).
 Mutation checks by hand (reverted): contrast threshold 4.0 + a wrong sRGB constant -> the model check and the 4 contrast checks fail; history coalescing disabled -> the arrow-key coalescing check fails (the slider-drag check still passes because the drag commits on `change`, as designed).
 
-**Self-fixes found by the E2E**: two announcements in the same moment overwrote each other (import summary vs contrast warning) -> merged into one polite message; the page re-saved its state on unload, so "clear storage + reload" did not reset (test now uses fresh contexts); two lang/inert accessibility defects (html lang, duplicate PDF viewer iframes).
+**Corrections found by the E2E**: two announcements in the same moment overwrote each other (import summary vs contrast warning) -> merged into one polite message; the page re-saved its state on unload, so "clear storage + reload" did not reset (test now uses fresh contexts); two lang/inert accessibility defects (html lang, duplicate PDF viewer iframes).
 
 **Known gaps / honest notes**
 - Page margins are a render option, not CSS: the builder applies them to A4 documents (bottom stays automatic for blocks with a footer band) and says so; they are exported as `--page-margin-*` custom properties that `renderPdf` ignores. Fixed-size documents (ticket, label) ignore them.
@@ -346,7 +411,7 @@ Mutation checks by hand (reverted): contrast threshold 4.0 + a wrong sRGB consta
 - Playground default view: **the showcase** (`playground/demos.js` "showcase": a realistic two-page customer report built only from components and tokens). The phase 1 scripts now open `?demo=invoice` explicitly (the old default).
 
 ### Part 1: llms.txt
-- `scripts/gen-llms.mjs` writes `llms.txt` (index) and `llms-full.txt` (29 components, 20 blocks: props, types, defaults, variants (from comments and from the `variants`/`sizes`/`aligns` maps), slots, emits, class passthrough, all parsed with `vue/compiler-sfc`; block data shapes from the live samples and their pdfcn comments; render options; the `renderPdf` option table parsed from core.js; themes, fonts, Takumi limits from PROGRESS.md; 3 runnable examples). Deterministic, `--check` for staleness. Committed at the repository root (generated; regenerate with `node scripts/gen-llms.mjs`).
+- `scripts/gen-llms.mjs` writes `llms.txt` (index) and `llms-full.txt` (29 components, 20 blocks: props, types, defaults, variants (from comments and from the `variants`/`sizes`/`aligns` maps), slots, emits, class passthrough, all parsed with `vue/compiler-sfc`; block data shapes from the live samples and their pdfcn comments; render options; the `renderPdf` option table parsed from core.js; themes, fonts, Takumi limits from docs/development/PROGRESS.md; 3 runnable examples). Deterministic, `--check` for staleness. Committed at the repository root (generated; regenerate with `node scripts/gen-llms.mjs`).
 - E2E (phase5 "llms"): every component/block heading and index entry, every `defineProps` binding (compileScript) appears in its table, spot checks on defaults/variants/slots, byte-identical regeneration, `--check`, and the 3 examples are extracted from llms-full.txt and run through Vite SSR in Node: PDF with the expected text; the custom-theme example embeds Nunito, Lora and Noto.
 
 ### Part 2: Nuxt example (`examples/nuxt`)

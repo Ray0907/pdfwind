@@ -3,13 +3,15 @@
 > Vue 3 + Tailwind v4 components and document blocks (invoices, reports, forms, tickets, labels) that render to PDF with Takumi. Same code in Node and in the browser, no headless browser. Feature target: pdfcn. Not published to npm: clone the repository.
 
 pdfwind has 29 components, 20 blocks, 11 runtime-switchable themes (default + pdfcn's nine) with bundled fonts, and a Theme Builder in the playground.
-Call `renderPdf(Component, props, { theme, header, footer, themeCss, size, margin })` from `src/render/node.js` (Node) or `src/render/browser.js` (browser, Vite); it returns PDF bytes.
+Call `renderPdf(Component, props, { theme, header, footer, themeCss, size, margin })` from `pdfwind/node` (Node) or `pdfwind/browser` (browser, Vite); it returns PDF bytes. SFCs need Vite's Vue plugin and SSR loading. See README.md for installation from a local tarball; not published to npm yet.
 
 ## Docs
 
 - [Full reference](./llms-full.txt): every component and block with props, types, defaults, variants and slots; renderPdf options; themes; fonts; Takumi limits; runnable examples
 - [README](./README.md): overview, screenshots, how to run the playground
-- [PROGRESS](./PROGRESS.md): per-phase notes, test results, known gaps
+- [PROGRESS](./docs/development/PROGRESS.md): per-phase notes, test results, known gaps
+- [PLAN](./docs/development/PLAN.md): contributor roadmap
+- [CONTRIBUTING](./CONTRIBUTING.md): setup, dependency rationale, E2E scripts
 
 ## Components
 
@@ -68,7 +70,7 @@ Call `renderPdf(Component, props, { theme, header, footer, themeCss, size, margi
 
 ## Optional
 
-- [Theme registry](./src/themes/index.js): the ten themes with fonts and page margins
+- [Theme registry](./src/themes/index.js): the eleven themes with fonts and page margins
 - [Theme Builder model](./src/themes/builder.js): toCss / fromCss / contrast, pure JS
 - [Nuxt example](./examples/nuxt/README.md): a server route that streams a PDF and a client-only preview
 - [E2E scripts](./scripts): every behavior above is exercised by an `e2e-phase*.mjs` script

@@ -1,5 +1,5 @@
-// pdfwind is not on npm. This copies what the example needs from the repository root into the example, so that `pnpm install` inside
-// examples/nuxt is all it takes (the copied sources resolve vue, tailwindcss, takumi-pdf ... from THIS folder's node_modules):
+// This example installs pdfwind via its local file dependency (a packed package also works).
+// Copy the installed internals/assets only for Nitro's custom server resource loader:
 //   pdfwind/src, pdfwind/fonts          the library (Vue SFCs + render core); node.js is not used, the Nitro loader replaces it
 //   server/pdfwind-assets/...           what the server route reads at run time through Nitro's server assets (bundled into .output):
 //                                       takumi wasm, tailwind css, theme css, fonts
@@ -8,9 +8,10 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const here = dirname(fileURLToPath(import.meta.url)), ex = join(here, ".."), root = join(ex, "..", "..");
+const here = dirname(fileURLToPath(import.meta.url)), ex = join(here, "..");
 const require = createRequire(join(ex, "package.json"));
-if (!existsSync(join(root, "src", "render", "core.js"))) { console.error("sync: run this from a pdfwind checkout (examples/nuxt inside the repository)"); process.exit(1); }
+const root = dirname(require.resolve("pdfwind/package.json"));
+if (!existsSync(join(root, "src", "render", "core.js"))) { console.error("sync: pdfwind is missing; run pnpm install first"); process.exit(1); }
 
 rmSync(join(ex, "pdfwind"), { recursive: true, force: true });
 cpSync(join(root, "src"), join(ex, "pdfwind", "src"), { recursive: true });

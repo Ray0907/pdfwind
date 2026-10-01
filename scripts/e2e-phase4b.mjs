@@ -1,3 +1,5 @@
+import { requireTools } from "./lib/tools.mjs";
+requireTools();
 // Phase 4b E2E: the Theme Builder (playground ?view=builder). Pure model in Node (round trip, importer, contrast), then Playwright Chromium:
 // color/font/margin controls change the PDF, validation, undo/redo (one step per drag, limit 30), persistence + blocked storage, export/import
 // into a fresh context, contrast panel vs an independent calculation, keyboard-only run, hit areas / motion / layout shift, axe-core scan,
@@ -5,7 +7,7 @@
 import { writeFileSync, mkdirSync, rmSync, readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { execFileSync } from "node:child_process";
+import { execFileSync } from "./lib/tools.mjs";
 import { createServer } from "vite";
 import { chromium } from "playwright-core";
 import { load, pageCount, allText, words, raster, colorStats, fonts as pdfFonts, hex } from "./lib/pdf.mjs";
@@ -488,6 +490,7 @@ try {
   // ---- screenshots in a headed browser (headless shows an empty PDF viewer)
   let headed = true;
   try {
+    if (process.env.PDFWIND_HEADED !== "1") throw new Error("headless run");
     const hb = await chromium.launch({ headless: false });
     for (const [w, h, name] of [[1280, 900, "1280"], [360, 780, "360"]]) {
       const c = await hb.newContext({ viewport: { width: w, height: h } }), p = watch(await c.newPage());

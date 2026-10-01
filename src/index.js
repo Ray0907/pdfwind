@@ -27,3 +27,5 @@ export { default as Badge } from "./components/Badge/Badge.vue";
 export { default as Form } from "./components/Form/Form.vue";
 export { default as Signature } from "./components/Signature/Signature.vue";
 export { default as PdfImage } from "./components/PdfImage/PdfImage.vue";
+export * from "./blocks/index.js";
+export { themes, themeNames } from "./themes/index.js";
