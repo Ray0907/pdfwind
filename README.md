@@ -17,7 +17,7 @@ Vue components in, paged PDFs out — in Node or the browser, without a headless
 
 ## Status and scope
 
-**Alpha 0.1.0 — not published to npm.** Clone and install a local tarball; the package remains private. **Vue only**, not React. There is **no hosted demo**; run the playground locally.
+**Alpha 0.1.0 — not published to npm.** Clone and install a local tarball; the package remains private. **Vue only**, not React. A **[live playground](https://pdfwind.ray-tien0907.workers.dev)** is hosted on Cloudflare (static build; pick any component or block, switch themes, open the Theme Builder), and you can also run it locally.
 The components are Vue SFCs: use a Vite-like bundler with the Vue plugin, `?raw`, `?url` and `import.meta.glob`. Ordinary Node cannot import `.vue` files; the Node example below uses Vite SSR.
 
 ## Use with Vue / Node
@@ -75,6 +75,8 @@ For Nuxt server rendering and a client-only preview, see the [Nuxt example and s
 
 ## Gallery
 
+![Changing the primary color in the Theme Builder updates the PDF live](docs/images/theme-builder.gif)
+
 ![Themes applied to the same invoice](docs/images/themes.png)
 ![Theme Builder with live PDF and contrast feedback](docs/images/theme-builder.png)
 ![Invoice blocks](docs/images/invoices.png)
@@ -108,8 +110,8 @@ In Vite, use `import themeCss from "./theme.css?raw"` and pass it in `options`; 
 - **Not browser CSS:** individual `rotate` utilities are ignored (use `transform`); text `opacity` can clip glyphs; one-sided dashed/dotted borders need SVG; transparent repeating gradients can leave artifacts; fixed-position elements reserve no layout space. See [technical notes and known gaps](docs/development/PROGRESS.md#phase-2a-14-layout--text-components).
 - **Fonts:** bundled Latin fonts and Noto Sans TC cover the examples, not all writing systems. Supply covering custom fonts for Hangul, emoji or Arabic; font coverage alone does not guarantee shaping/layout support.
 - **Preview:** replacing a PDF resets the viewer's scroll position to page 1. Node SFC loading requires Vite SSR, as above.
-- **First-render download:** the built playground measured **~5.1 MB English / ~10.5 MB Chinese**, including **~4.1 MB WASM** (decimal MB). Fresh Chromium contexts, plain HTTP without compression, CDP transferred bytes including response headers and HTML/JS/CSS/preloads; excludes in-memory PDF blobs. These are playground measurements, not a fixed library cost; details are generated in `out/static/report.md` by `pnpm e2e:static`.
-- **Hosting/CI:** no hosted demo. [Workflow files](.github/workflows) exist, but GitHub Actions/Pages have not been run or enabled by this preparation.
+- **First-render download:** on the hosted playground (Cloudflare static assets, Brotli) a fresh Chromium measured **~2.3 MB** over the wire for the first English render (the Takumi WASM is 4.1 MB raw, 1.7 MB compressed) and **~7.7 MB** when Chinese text loads the bundled Noto Sans TC font (5.4 MB, already WOFF2). First PDF appeared after about 1.5-3.4 s in that run (one run, headless, one network; not a benchmark). These are playground measurements, not a fixed library cost; the uncompressed figures (5.1 / 10.5 MB) come from `pnpm e2e:static` against a plain static server.
+- **Hosting/CI:** the hosted playground is a manual static deployment, not tied to CI. [Workflow files](.github/workflows) exist, but GitHub Actions have not been run or enabled.
 
 ## For LLMs and agents
 
