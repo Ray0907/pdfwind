@@ -111,7 +111,7 @@ In Vite, use `import themeCss from "./theme.css?raw"` and pass it in `options`; 
 - **Fonts:** bundled Latin fonts and Noto Sans TC cover the examples, not all writing systems. Supply covering custom fonts for Hangul, emoji or Arabic; font coverage alone does not guarantee shaping/layout support.
 - **Preview:** replacing a PDF resets the viewer's scroll position to page 1. Node SFC loading requires Vite SSR, as above.
 - **First-render download:** on the hosted playground (Cloudflare static assets, Brotli) a fresh Chromium measured **~2.3 MB** over the wire for the first English render (the Takumi WASM is 4.1 MB raw, 1.7 MB compressed) and **~7.7 MB** when Chinese text loads the bundled Noto Sans TC font (5.4 MB, already WOFF2). First PDF appeared after about 1.5-3.4 s in that run (one run, headless, one network; not a benchmark). These are playground measurements, not a fixed library cost; the uncompressed figures (5.1 / 10.5 MB) come from `pnpm e2e:static` against a plain static server.
-- **Hosting/CI:** the hosted playground is a manual static deployment, not tied to CI. [Workflow files](.github/workflows) exist, but GitHub Actions have not been run or enabled.
+- **Hosting/CI:** [CI](.github/workflows/ci.yml) runs the offline suite on Ubuntu for every push. Its first runs (937 pass, 3 fail, 41 skip) exposed three macOS-only assumptions in the tests (a shell `md5` command and a Ctrl+Z key); the fixes are in the repository, so check the Actions tab for the current result. The hosted playground is a manual static deployment, not tied to CI.
 
 ## For LLMs and agents
 

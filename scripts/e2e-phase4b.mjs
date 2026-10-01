@@ -242,8 +242,9 @@ try {
     check(g, "five arrow-key steps on a focused slider coalesce into one history entry", (await hist(page)) - hk === 1, `history ${hk} -> ${await hist(page)}`);
     // typing in a text field keeps native undo, does not hijack
     const hexf = page.locator("#f-color-success-hex"); await hexf.fill("#00ff00"); await hexf.press("Enter"); await settle(page);
-    const hb = await hist(page); await hexf.focus(); await hexf.press("Control+KeyZ");
-    check(g, "Ctrl+Z inside the hex text field is left to the field (does not undo the theme)", (await hist(page)) === hb && (await st(page)).colors.success === "#00ff00", "theme untouched");
+    const hb = await hist(page); await hexf.focus(); await hexf.press(process.platform === "darwin" ? "Meta+KeyZ" : "Control+KeyZ"); // the platform's native text-undo key
+    await settle(page);
+    check(g, "the native undo key inside the hex text field is left to the field (the app history does not change)", (await hist(page)) === hb && (await hexf.inputValue()) !== "#00ff00", `history ${hb} -> ${await hist(page)}; the field reverted its own text to ${await hexf.inputValue()}`);
     // limit 30
     await page.locator("#doc").selectOption("components-all");
     const keys = BM.COLOR_KEYS; let cnt = 0;

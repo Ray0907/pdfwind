@@ -12,4 +12,4 @@ Alpha preparation, not an npm release. The existing history (2026-10-01, `11b556
 - Token-only colors, dark paper, llms references, Nuxt example and showcase (`2ad94ce`).
 - Playground interface/accessibility fixes (`fe13cc2`).
 
-Pending preparation in this working tree adds portable/offline comparison handling, attributed theme fixtures, package exports and packed-consumer checks, static-subpath verification, contributor/security templates and local-only workflow files. These are not committed releases.
+Public-release preparation (`e4179cb` onward) added portable/offline comparison handling, attributed theme fixtures, package exports and packed-consumer checks, static-subpath verification, contributor/security templates and the GitHub Actions workflows. This is not an npm release.

@@ -4,6 +4,7 @@ requireTools();
 // the README showcase and images. Writes out/phase5/ (report.md, pdf/, screenshots).
 import { writeFileSync, readFileSync, mkdirSync, rmSync, existsSync, mkdtempSync } from "node:fs";
 import { execFileSync } from "./lib/tools.mjs";
+import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { createServer as netServer } from "node:net";
@@ -26,6 +27,8 @@ const check = (group, name, pass, detail = "", info = false) => rows.push({ grou
 const norm = (s) => s.replace(/\s+/g, " ").trim();
 const f2 = (n) => (Math.round(n * 100) / 100).toString();
 const sh = (c, a, o = {}) => execFileSync(c, a, { encoding: "utf8", maxBuffer: 1 << 28, ...o });
+// hashed in Node: the shell `md5` command exists on macOS only
+const rasterHash = (file, dpi) => createHash("md5").update(execFileSync("pdftoppm", ["-r", String(dpi), "-f", "1", "-l", "1", "-singlefile", file], { maxBuffer: 1 << 28 })).digest("hex");
 const section = async (g, fn) => {
   if (g === "nuxt" && process.env.PDFWIND_OFFLINE === "1") { rows.push({ group: g, name: "Nuxt install/build/routes/preview", skip: true, detail: "PDFWIND_OFFLINE=1: registry install excluded; run pnpm e2e:phase5 for Nuxt checks" }); return; }
   try { await fn(); } catch (e) { check(g, "section ran without throwing", false, String(e?.stack ?? e).split("\n").slice(0, 3).join(" | ")); }
@@ -158,7 +161,7 @@ try {
       if (which === "app") {
         const bytes = async (p) => Buffer.from(await p.evaluate(() => window.__pdfwind.pdfBytes()));
         const bl = bytes(L), bd = bytes(D); const [a, b] = await Promise.all([bl, bd]); writeFileSync(`${OUT}/pdf/chrome-light.pdf`, a); writeFileSync(`${OUT}/pdf/chrome-dark.pdf`, b);
-        check(g, "the PDF does not follow the page chrome: same text and pixels whether the page is light or dark", allText(`${OUT}/pdf/chrome-light.pdf`).join() === allText(`${OUT}/pdf/chrome-dark.pdf`).join() && sh("sh", ["-c", `pdftoppm -r 40 -f 1 -l 1 -singlefile ${OUT}/pdf/chrome-light.pdf | md5`]) === sh("sh", ["-c", `pdftoppm -r 40 -f 1 -l 1 -singlefile ${OUT}/pdf/chrome-dark.pdf | md5`]), "identical");
+        check(g, "the PDF does not follow the page chrome: same text and pixels whether the page is light or dark", allText(`${OUT}/pdf/chrome-light.pdf`).join() === allText(`${OUT}/pdf/chrome-dark.pdf`).join() && rasterHash(`${OUT}/pdf/chrome-light.pdf`, 40) === rasterHash(`${OUT}/pdf/chrome-dark.pdf`, 40), "identical");
       }
       await L.context().close(); await D.context().close();
     }

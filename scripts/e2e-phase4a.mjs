@@ -6,6 +6,7 @@ requireTools();
 // theme's fonts are fetched, switch latency, Node vs Chromium parity, picker keyboard/focus. Writes out/phase4a/ (report.md, PNG contact sheets).
 import { writeFileSync, mkdirSync, rmSync, existsSync, readFileSync, statSync } from "node:fs";
 import { execFileSync } from "./lib/tools.mjs";
+import { createHash } from "node:crypto";
 import { createServer } from "vite";
 import { chromium } from "playwright-core";
 import { load, pageCount, allText, words, find, raster, colorStats, hex } from "./lib/pdf.mjs";
@@ -286,7 +287,7 @@ await section("sheets", async () => {
   const want = ["themes-invoice-modern.png", "themes-report-financial.png", "themes-components.png"];
   check(g, "contact sheets written: all themes side by side for invoice-modern, report-financial and the components sampler", want.every((f) => existsSync(`${OUT}/${f}`) && statSync(`${OUT}/${f}`).size > 20000), want.map((f) => `${OUT}/${f}`).join(", "));
   // every theme's page 1 differs from every other theme's (not a no-op)
-  const sums = themeNames.map((t) => sh("sh", ["-c", `pdftoppm -r 20 -f 1 -l 1 -singlefile ${cells[t]["invoice-modern"].file} | md5`]).trim());
+  const sums = themeNames.map((t) => createHash("md5").update(execFileSync("pdftoppm", ["-r", "20", "-f", "1", "-l", "1", "-singlefile", cells[t]["invoice-modern"].file], { maxBuffer: 1 << 28 })).digest("hex")); // hashed in Node: the shell `md5` command exists on macOS only
   check(g, "all themes render a visibly different invoice-modern page 1 (one distinct raster hash each)", new Set(sums).size === themeNames.length, `${new Set(sums).size} distinct`);
 });
 
