@@ -75,7 +75,7 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(fallback); ctrl?.abort
 
 <template>
   <div class="pdf-preview" :data-busy="busy">
-    <iframe v-for="i in [0, 1]" :key="i" :src="urls[i] || undefined" :class="{ back: front !== i }" title="PDF preview" @load="urls[i] && settle(i)" />
+    <iframe v-for="i in [0, 1]" :key="i" :src="urls[i] || undefined" :class="{ back: front !== i }" :inert="front !== i ? '' : undefined" :title="front === i ? 'PDF preview' : 'PDF preview (loading)'" @load="urls[i] && settle(i)" />
     <div v-if="!urls[front] && busy" class="pdf-preview-skeleton" role="status">Rendering PDF…</div>
     <div class="pdf-preview-bar" :class="{ on: busy && urls[front] }" aria-hidden="true" />
     <p v-if="error" class="pdf-preview-error" role="alert">{{ error.message }}</p>

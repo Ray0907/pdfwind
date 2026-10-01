@@ -3,7 +3,7 @@ import { createSSRApp, h } from "vue";
 import { renderToString } from "@vue/server-renderer";
 import { makeTailwind, unescapeHtml } from "./tailwind.js";
 import init, { PdfRenderer } from "takumi-pdf/no-init";
-import { getTheme } from "../themes/index.js";
+import { getTheme, checkFamily, bundledFamilies } from "../themes/index.js";
 
 // Vue component (+ props) or ready-made HTML string -> HTML string
 // Vue's SSR fragment markers (<!--[--> ... <!--]-->) make Takumi drop the text next to them, so comments are stripped
@@ -36,7 +36,8 @@ const resolveImages = async (markup, images, mode, signal) => {
 
 /**
  * @param loadResources async () => { wasm, tailwind: {theme, utilities, preflight}, themeCss (default theme), fonts: [{name, data, style?}] }
- *   plus `themes`: { [name]: { css: () => string, fonts: [FontLoader] } } for the named themes (src/render/themes.js); only the active theme's css and fonts are touched.
+ *   plus `themes`: { [name]: { css: () => string } } for the named themes and `families`: { [family]: [FontLoader] } for the bundled families (src/render/themes.js);
+ *   only the active theme's css and the faces of its body/heading families are touched. `fonts` then only holds the CJK fallback.
  *   Called once, lazily, on the first render (retried if it rejects). `fonts` may be lazy FontLoaders: { name, ranges, data: () => bytes }; `when: RegExp` registers a face only if the markup matches.
  * @returns renderPdf(component, props?, opts?) -> Promise<Uint8Array>
  *   opts: signal, theme (name from src/themes/index.js; unknown names throw listing the valid ones), header/footer (component or HTML string), themeCss (Tailwind @theme / :root CSS),
@@ -57,10 +58,14 @@ export const createRenderPdf = (loadResources) => {
     const named = meta.name === "default" ? null : res.themes?.[meta.name];
     if (meta.name !== "default" && !named) throw new Error(`Theme "${meta.name}" has no resources in this build`);
     const [body, head, foot] = await Promise.all([toHtml(component, props), header ? toHtml(header, props) : "", footer ? toHtml(footer, props) : ""]);
-    // ponytail: compiler cached per themeCss string; grows if callers pass unbounded distinct themes
     // default theme first, then the named theme, then the caller's overrides
     themeCss = `${res.themeCss ?? ""}\n${named ? await named.css() : ""}\n${themeCss}`;
-    if (!tw.has(themeCss)) tw.set(themeCss, makeTailwind(res.tailwind, themeCss).catch((e) => { tw.delete(themeCss); throw e; }));
+    // body/heading families: a theme's meta, overridden by `--font-body` / `--font-heading` in the css (last one wins), so a custom
+    // themeCss (Theme Builder) can pick any bundled family. A name that is not bundled must come with a matching `fonts` entry.
+    const fam = (role) => { let v; for (const m of themeCss.matchAll(new RegExp(`--font-${role}:\\s*([^;}]+)`, "g"))) v = m[1]; const f = v?.split(",")[0].trim().replace(/^["']|["']$/g, ""); if (f && !bundledFamilies.includes(f) && !fonts.some((x) => x.name === f)) checkFamily(f, ` (--font-${role} in the theme css)`); return f ?? meta.families[role]; };
+    const families = { body: fam("body"), heading: fam("heading") };
+    // ponytail: compiler cached per themeCss string, LRU of 12 (the Theme Builder makes a new string per edit)
+    if (!tw.has(themeCss)) { tw.set(themeCss, makeTailwind(res.tailwind, themeCss).catch((e) => { tw.delete(themeCss); throw e; })); if (tw.size > 12) tw.delete(tw.keys().next().value); }
     const twCss = (await tw.get(themeCss))(body, head, foot);
     const markup = body + head + foot;
     signal?.throwIfAborted();
@@ -68,11 +73,11 @@ export const createRenderPdf = (loadResources) => {
     let pdf;
     try {
       pdf = await renderer.render(body, {
-        size: "a4", fontFamilies: [...new Set([meta.families.body, meta.families.heading, "Noto Sans TC"])], ...rest, uncoveredText,
+        size: "a4", fontFamilies: [...new Set([families.body, families.heading, "Noto Sans TC"])], ...rest, uncoveredText,
         // `when`: a face (italic) is only registered when the markup can use it
-        fonts: [...(named ? [...named.fonts, ...res.fonts.filter((f) => f.name === "Noto Sans TC")] : res.fonts).filter((f) => !f.when || f.when.test(markup)).map(({ when, ...f }) => f), ...fonts],
+        fonts: [...[...[...new Set([families.body, families.heading])].flatMap((f) => res.families[f] ?? []), ...res.fonts].filter((f) => !f.when || f.when.test(markup)).map(({ when, ...f }) => f), ...fonts],
         ...(sources.length && { images: { sources } }),
-        css: [twCss, `body{font-family:"${meta.families.body}","Noto Sans TC"}`, ...(css ? [css] : [])],
+        css: [twCss, `body{font-family:"${families.body}","Noto Sans TC"}`, ...(css ? [css] : [])],
         ...(head && { header: head }), ...(foot && { footer: foot }),
       });
     } catch (e) {

@@ -53,6 +53,7 @@ pnpm exec vite          # playground at http://localhost:5173 (sidebar: every co
 | `node scripts/e2e-phase2b.mjs` | Table, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage | `out/phase2b/` |
 | `node scripts/e2e-phase3a.mjs` | six invoice blocks + compare PNGs against pdfcn | `out/phase3a/` |
 | `node scripts/e2e-phase3b1.mjs` | report-financial/marketing/operations/security, event-agenda/ticket, gift-certificate | `out/phase3b1/` |
+| `node scripts/e2e-phase4b.mjs` | the Theme Builder: controls, history, persistence, export/import, contrast, keyboard, axe | `out/phase4b/` |
 | `node scripts/e2e-phase4a.mjs` | 10 themes x 20 blocks + component sampler: fonts, colors, headings, contrast, lazy font loading, picker | `out/phase4a/` |
 | `node scripts/e2e-phase3b2.mjs` | lesson-plan, medical-intake-form, meeting-minutes, packing-slip, press-release, shipping-label, work-order | `out/phase3b2/` |
 
@@ -75,11 +76,15 @@ Fonts are bundled latin-subset WOFF2 (OFL, `fonts/OFL-*.txt`) and loaded lazily:
 pdfcn's PDF base-14 names have no Takumi equivalent, so Helvetica -> Inter, Times-Roman -> Lora, Courier -> Source Code Pro (see `src/themes/index.js`).
 `out/phase4a/themes-*.png` shows all themes side by side. The playground has a theme picker.
 
+**Theme Builder**: run the playground (`pnpm exec vite`, root `playground`) and open `?view=builder` (or the link in the sidebar). Edit the 12 colors, fonts, sizes, gaps and margins
+against a live preview of any document, watch the WCAG contrast of the key pairs, undo/redo, then copy or download `theme.css` and pass it as `themeCss`
+(`--font-body` / `--font-heading` pick the bundled fonts). Import takes a theme CSS back in and reports anything it cannot use. Screenshots: `out/phase4b/`.
+
 ## Status
 
 Phase 1 render core, 2a/2b all 24 components, 3a six invoices, 3b-1 seven blocks, 3b-2 the last seven blocks (lesson-plan, medical-intake-form,
-meeting-minutes, packing-slip, press-release, shipping-label, work-order): done, so all 20 pdfcn blocks are ported. 4a: the nine named themes + bundled fonts + runtime switching + playground picker. The Theme Builder,
-playground polish and `llms.txt` are not built yet. Not published to npm; SFCs need Vite.
+meeting-minutes, packing-slip, press-release, shipping-label, work-order): done, so all 20 pdfcn blocks are ported. 4a: the nine named themes + bundled fonts + runtime switching + playground picker. 4b: the Theme Builder
+(playground `?view=builder`). Playground polish and `llms.txt` are not built yet. Not published to npm; SFCs need Vite.
 
 ## Credits and licence
 

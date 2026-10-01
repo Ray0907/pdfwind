@@ -105,6 +105,17 @@ export const themes = {
 
 export const themeNames = Object.keys(themes);
 
+// every bundled family with its font files (union over the themes), for custom themes: { Nunito: [{ file, weight?, style? }, ...] }
+export const familyFiles = {};
+for (const t of Object.values(themes)) for (const { family, ...f } of t.fonts) { const list = (familyFiles[family] ??= []); if (!list.some((x) => x.file === f.file)) list.push(f); }
+export const bundledFamilies = Object.keys(familyFiles);
+
+/** Throws, naming the bundled families, if `name` is not one of them. `where` says where the name came from. */
+export const checkFamily = (name, where = "") => {
+  if (!Object.hasOwn(familyFiles, name)) throw new Error(`Unknown font family "${name}"${where}. Bundled families: ${bundledFamilies.join(", ")}.`);
+  return name;
+};
+
 /** Meta of a theme; unknown names throw an error that lists the valid ones. */
 export const getTheme = (name) => {
   if (!Object.hasOwn(themes, name)) throw new Error(`Unknown theme "${name}". Valid themes: ${themeNames.join(", ")}. (To use your own colors/fonts pass themeCss.)`);
