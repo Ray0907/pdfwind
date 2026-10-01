@@ -30,5 +30,5 @@
 :root[data-scheme="light"] { color-scheme: light; }
 :root[data-scheme="dark"] { color-scheme: dark; }
 html, body, #app { height: 100%; margin: 0; }
-body { background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+body { background: var(--bg); color: var(--fg); font: 0.875rem/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
 :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }

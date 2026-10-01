@@ -65,6 +65,7 @@ pnpm exec vite          # playground at http://localhost:5173 (sidebar: every co
 | `node scripts/e2e-phase2b.mjs` | Table, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage | `out/phase2b/` |
 | `node scripts/e2e-phase3a.mjs` | six invoice blocks + compare PNGs against pdfcn | `out/phase3a/` |
 | `node scripts/e2e-phase3b1.mjs` | report-financial/marketing/operations/security, event-agenda/ticket, gift-certificate | `out/phase3b1/` |
+| `node scripts/e2e-phase5b.mjs` | playground interface review: 320/360/640px, landmarks, skip link, hit areas, text sizes, error banner + Retry, axe on the main playground in light and dark | `out/phase5b/` |
 | `node scripts/e2e-phase5.mjs` | color tokens guard, dark theme + painted paper, playground light/dark + axe, llms.txt examples, Nuxt example (install, build, server route, page), README showcase and images | `out/phase5/` |
 | `node scripts/e2e-phase4b.mjs` | the Theme Builder: controls, history, persistence, export/import, contrast, keyboard, axe | `out/phase4b/` |
 | `node scripts/e2e-phase4a.mjs` | 10 themes x 20 blocks + component sampler: fonts, colors, headings, contrast, lazy font loading, picker | `out/phase4a/` |

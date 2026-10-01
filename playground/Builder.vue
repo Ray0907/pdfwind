@@ -306,7 +306,7 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
 </template>
 
 <style>
-.builder { --hit: 40px; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100dvh; }
+.builder { --hit: 40px; background: var(--bg); color: var(--fg); font: 0.875rem/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100dvh; }
 .builder *, .builder *::before, .builder *::after { box-sizing: border-box; }
 .builder h1, .builder h2, .builder h3, .builder p { margin: 0; }
 .builder :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
@@ -327,21 +327,21 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
 
 .bar { display: grid; gap: 8px; }
 .bar-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.builder h1 { font-size: 20px; line-height: 1.2; font-weight: 650; }
+.builder h1 { font-size: 1.25rem; line-height: 1.2; font-weight: 650; }
 .link { color: var(--accent); text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: var(--hit); }
 .bar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .status { min-height: 20px; color: var(--fg); font-weight: 500; }
-.meta { color: var(--fg2); font-size: 12px; }
+.meta { color: var(--fg2); font-size: 0.75rem; }
 
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 8px; display: grid; gap: 4px; }
-.card > h2 { font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg2); font-weight: 650; padding: 8px 8px 4px; }
+.card > h2 { font-size: 0.8125rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg2); font-weight: 650; padding: 8px 8px 4px; }
 .row2 { display: grid; gap: 4px; }
 
 .field { display: grid; gap: 4px; padding: 6px 8px; border-radius: 8px; }
-.field-label { font-weight: 550; font-size: 13px; }
+.field-label { font-weight: 550; font-size: 0.8125rem; }
 .field-controls { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.hint { color: var(--fg2); font-size: 12px; }
-.field-error { color: var(--bad); font-size: 12px; font-weight: 500; }
+.hint { color: var(--fg2); font-size: 0.75rem; }
+.field-error { color: var(--bad); font-size: 0.75rem; font-weight: 500; }
 .field.invalid .hex, .field.invalid .num { border-color: var(--bad); }
 
 .btn, .icon-btn, .select, .text, .num, .hex { min-height: var(--hit); border-radius: 8px; border: 1px solid var(--line2); background: var(--btn); color: var(--fg); font: inherit; }
@@ -353,7 +353,7 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
 .icon-btn { width: var(--hit); padding: 0; display: inline-grid; place-items: center; cursor: pointer; flex: none; transition-property: background-color, scale; transition-duration: 150ms; transition-timing-function: var(--ease); }
 .select, .text { padding: 0 10px; min-width: 0; flex: 1; }
 .num { width: 76px; padding: 0 8px; flex: none; font-variant-numeric: tabular-nums; }
-.unit { width: 18px; color: var(--fg2); font-size: 12px; flex: none; }
+.unit { width: 18px; color: var(--fg2); font-size: 0.75rem; flex: none; }
 .hex { width: 112px; padding: 0 10px; font-family: ui-monospace, "SF Mono", Menlo, monospace; flex: none; }
 .swatch { width: var(--hit); height: var(--hit); padding: 3px; border-radius: 8px; border: 1px solid var(--line2); background: var(--btn); cursor: pointer; flex: none; }
 .swatch::-webkit-color-swatch-wrapper { padding: 0; } .swatch::-webkit-color-swatch { border: 1px solid var(--line); border-radius: 5px; }
@@ -363,10 +363,10 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
 .file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 .file:focus-within { outline: 2px solid var(--ring); outline-offset: 2px; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 8px 8px; }
-.code { width: 100%; min-height: 96px; resize: vertical; border-radius: 8px; border: 1px solid var(--line2); background: var(--btn); color: var(--fg); padding: 10px; font: 12px/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
+.code { width: 100%; min-height: 96px; resize: vertical; border-radius: 8px; border: 1px solid var(--line2); background: var(--btn); color: var(--fg); padding: 10px; font: 0.75rem/1.5 ui-monospace, "SF Mono", Menlo, monospace; }
 
 .seg { border: 0; margin: 0; padding: 4px 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.seg legend { float: left; padding: 0; margin-right: 8px; font-weight: 550; font-size: 13px; line-height: var(--hit); }
+.seg legend { float: left; padding: 0; margin-right: 8px; font-weight: 550; font-size: 0.8125rem; line-height: var(--hit); }
 .seg label { position: relative; display: inline-flex; }
 .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .seg span { min-height: var(--hit); padding: 0 14px; display: inline-flex; align-items: center; border: 1px solid var(--line2); border-radius: 8px; background: var(--btn); cursor: pointer; transition-property: background-color, border-color; transition-duration: 150ms; transition-timing-function: var(--ease); }
@@ -374,25 +374,25 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
 .seg input:focus-visible + span { outline: 2px solid var(--ring); outline-offset: 2px; }
 
 .contrast { padding: 4px 8px 8px; display: grid; gap: 8px; border-radius: 8px; }
-.contrast h3 { font-size: 14px; font-weight: 650; }
-.contrast .sub { font-weight: 400; color: var(--fg2); font-size: 12px; margin-left: 6px; }
+.contrast h3 { font-size: 0.875rem; font-weight: 650; }
+.contrast .sub { font-weight: 400; color: var(--fg2); font-size: 0.75rem; margin-left: 6px; }
 .summary { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 8px; font-weight: 550; }
 .summary svg { flex: none; margin-top: 2px; }
 .summary.is-pass { background: var(--ok-bg); color: var(--ok); } .summary.is-fail { background: var(--bad-bg); color: var(--bad); }
-.ratios { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ratios { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
 .ratios th, .ratios td { text-align: left; padding: 6px 4px; border-top: 1px solid var(--line); font-weight: 400; vertical-align: middle; }
-.ratios thead th { border-top: 0; color: var(--fg2); font-size: 12px; font-weight: 550; }
+.ratios thead th { border-top: 0; color: var(--fg2); font-size: 0.75rem; font-weight: 550; }
 .ratios tbody th { display: flex; align-items: center; gap: 8px; }
 .ratio { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.sample { flex: none; width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line2); display: inline-grid; place-items: center; font-weight: 700; font-size: 13px; }
+.sample { flex: none; width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line2); display: inline-grid; place-items: center; font-weight: 700; font-size: 0.8125rem; }
 .sample::before { content: "Aa"; }
-.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-weight: 600; font-size: 0.75rem; }
 .badge.pass { background: var(--ok-bg); color: var(--ok); } .badge.fail { background: var(--bad-bg); color: var(--bad); }
 
 .result { margin: 0 8px 8px; padding: 8px 10px; border-radius: 8px; display: grid; gap: 6px; }
 .result.ok { background: var(--ok-bg); color: var(--ok); } .result.bad { background: var(--bad-bg); color: var(--bad); }
 .result-summary { font-weight: 600; }
-.issues { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 12px; color: var(--fg); }
+.issues { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 0.75rem; color: var(--fg); }
 .issues li { padding: 4px 8px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line); overflow-wrap: anywhere; }
 .issues code { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
 
