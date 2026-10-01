@@ -212,3 +212,33 @@ node scripts/e2e-phase3b1.mjs     # out/phase3b1/*.pdf, compare/<block>-N.png (o
 
 **Known gaps**: agenda day header/banner is not repeated on a day's continuation pages (the footer is); report page breaks are explicit (a very long highlights list continues on a 4th page); certificate content taller than one A4 page splits (a long message plus long terms needs more than the ~70pt spare); `Courier`/monospace is not available.
 
+
+## Phase 3b-2: lesson-plan / medical-intake-form / meeting-minutes / packing-slip / press-release / shipping-label / work-order
+
+**Built** (`src/blocks/<Name>/<Name>.vue`, pdfcn props + default data, neutral sample data in `src/blocks/doc.js`; each block exports its recommended `renderOptions`, the playground uses them):
+- lesson-plan (2 pages: info + sequence | differentiation..reflection with 8 writing lines), medical-intake-form (2 pages, uses `Form` + `Signature`, section toggles default true), meeting-minutes (2 pages, status Badges), packing-slip, press-release, work-order (A4, 1 page each), shipping-label (4 x 6 in = 288 x 432 pt via `{ size: {width:384,height:576}, margin: 0 }`, QR of the tracking number).
+- Footer bands (`src/blocks/footers.js` + 2 block-local footers) repeat on every page with "Page n of N".
+- Derived from props: lesson sequence minutes total (vs `duration`), packing slip line totals + "Items Packed x of y", work-order parts/labor/tax/grand total (rounded per step), shipping postage default "PAID".
+
+**Run**
+```
+node scripts/e2e-phase3b2.mjs     # out/phase3b2/*.pdf, compare/<block>-N.png (ours LEFT, pdfcn RIGHT), report.md
+```
+
+**Result: 122/122 PASS.** Per block: renderOptions exported, page size equals the reference PDF (pdfinfo), page count equals reference, all section text, defaults without props (no pdfcn text), class passthrough, CJK (Noto embedded). Plus: lesson total/accent/8 ruled lines/grid columns; medical field underline rules, checkbox outlines, medication grid rules, signature line, toggles; meeting statuses -> distinct badges, all-Complete mutation, optional parts omitted; packing math + EUR/de-DE; press order, accent quote bar, long body flows to page 2; label exact size, QR decodes (jsQR 300dpi), tracking-number mutation, "PAID" default; work-order totals incl. tax 0, 4 priority badge fills differ, signature rules; Chromium text + pages + size parity for all 7 and QR decode; no console errors.
+Mutation checks run by hand (not left in the repo): QR value forced to "WRONG" -> 3 shipping-label checks + the Chromium QR check fail; work-order tax computed on parts only -> 2 math checks fail. Both reverted; full run is green again.
+
+**Self-fix rounds**: 2 used (work-order overflow: explicit column widths + spacing; lesson-plan time/activity widths).
+
+**Where ours differs visually from pdfcn (see compare PNGs)**
+1. Font: Inter instead of Geist.
+2. Logos: monogram square (or your image) instead of pdfcn's favicon on packing slip, work order, medical form.
+3. Lesson plan: added a "Total" footer row to the sequence table (sum of minutes, matches duration); pdfcn has none. Page 1 is a bit taller than pdfcn's.
+4. Footers: ours show "Page n of N" counters (pdfcn's footers are static text) for lesson plan, meeting minutes, packing slip, work order, medical form; press release shows the social platforms on the right instead.
+5. Meeting minutes: action-item owner/date columns narrower so names/dates wrap ("Jordan / Lee", "Sep 19, / 2026"); text slightly larger.
+6. Press release: neutral de-branded sample copy ("DocKit"); heading line breaks are the same width but wrap one word differently.
+7. Shipping label: matches closely; our content block is spaced to fill the 432 pt height. Barcode image slot (`barcodeUrl`) is supported but the sample uses the QR.
+8. Work order: `accentColor` is accepted but, like the reference page, nothing is drawn in it (priority/job type badges use theme variants). Vertical rhythm within a few pt (6-18 pt on lower sections).
+9. Medical form: footer address wraps to a 2nd line in both (same as reference).
+
+**Known gaps**: letter-spaced caps kept <= 0.07em for text extraction; medical form/lesson plan break explicitly (PageBreak) so very long custom content on a page would overflow onto extra pages rather than re-flow to the same 2-page layout.

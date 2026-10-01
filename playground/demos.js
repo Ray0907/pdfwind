@@ -3,7 +3,7 @@
 import { h } from "vue";
 import { Stack, Section, Card, Divider, KeepTogether, PageBreak, PageHeader, PageFooter, PageNumber, Watermark, Heading, Text, Link, List, Table, TableHeader, TableBody, TableFooter, TableRow, TableCell, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage } from "../src/index.js";
 import { TEST_PNG, testPngBytes } from "./assets.js";
-import { InvoiceClassic, InvoiceConsultant, InvoiceCorporate, InvoiceCreative, InvoiceMinimal, InvoiceModern, InvoiceFooter, InvoiceCreativeFooter, blockPage, invoiceClassicSample, invoiceConsultantSample, invoiceCorporateSample, invoiceCreativeSample, invoiceMinimalSample, invoiceModernSample, ReportFinancial, ReportMarketing, ReportOperations, ReportSecurity, EventAgenda, EventTicket, GiftCertificate, reportFinancialOptions, reportMarketingOptions, reportOperationsOptions, reportSecurityOptions, eventAgendaOptions, eventTicketOptions, giftCertificateOptions, reportFinancialSample, reportMarketingSample, reportOperationsSample, reportSecuritySample, eventAgendaSample, eventTicketSample, giftCertificateSample } from "../src/blocks/index.js";
+import { InvoiceClassic, InvoiceConsultant, InvoiceCorporate, InvoiceCreative, InvoiceMinimal, InvoiceModern, InvoiceFooter, InvoiceCreativeFooter, blockPage, invoiceClassicSample, invoiceConsultantSample, invoiceCorporateSample, invoiceCreativeSample, invoiceMinimalSample, invoiceModernSample, ReportFinancial, ReportMarketing, ReportOperations, ReportSecurity, EventAgenda, EventTicket, GiftCertificate, reportFinancialOptions, reportMarketingOptions, reportOperationsOptions, reportSecurityOptions, eventAgendaOptions, eventTicketOptions, giftCertificateOptions, reportFinancialSample, reportMarketingSample, reportOperationsSample, reportSecuritySample, eventAgendaSample, eventTicketSample, giftCertificateSample, LessonPlan, MedicalIntakeForm, MeetingMinutes, PackingSlip, PressRelease, ShippingLabel, WorkOrder, lessonPlanOptions, medicalIntakeFormOptions, meetingMinutesOptions, packingSlipOptions, pressReleaseOptions, shippingLabelOptions, workOrderOptions, lessonPlanSample, medicalIntakeFormSample, meetingMinutesSample, packingSlipSample, pressReleaseSample, shippingLabelSample, workOrderSample } from "../src/blocks/index.js";
 
 const slot = (c) => (typeof c === "function" ? c : () => c);
 const el = (C, props, content) => h(C, props, content === undefined ? undefined : { default: slot(content) });
@@ -387,4 +387,11 @@ export const demos = {
   "event-agenda": optsDemo("Event agenda", EventAgenda, eventAgendaSample, eventAgendaOptions),
   "event-ticket": optsDemo("Event ticket", EventTicket, eventTicketSample, eventTicketOptions),
   "gift-certificate": optsDemo("Gift certificate", GiftCertificate, giftCertificateSample, giftCertificateOptions),
+  "lesson-plan": optsDemo("Lesson plan", LessonPlan, lessonPlanSample, lessonPlanOptions),
+  "medical-intake-form": optsDemo("Medical intake form", MedicalIntakeForm, medicalIntakeFormSample, medicalIntakeFormOptions),
+  "meeting-minutes": optsDemo("Meeting minutes", MeetingMinutes, meetingMinutesSample, meetingMinutesOptions),
+  "packing-slip": optsDemo("Packing slip", PackingSlip, packingSlipSample, packingSlipOptions),
+  "press-release": optsDemo("Press release", PressRelease, pressReleaseSample, pressReleaseOptions),
+  "shipping-label": optsDemo("Shipping label", ShippingLabel, shippingLabelSample, shippingLabelOptions),
+  "work-order": optsDemo("Work order", WorkOrder, workOrderSample, workOrderOptions),
 };

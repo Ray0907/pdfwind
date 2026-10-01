@@ -14,6 +14,15 @@ export { default as ReportSecurity, renderOptions as reportSecurityOptions } fro
 export { default as EventAgenda, renderOptions as eventAgendaOptions } from "./EventAgenda/EventAgenda.vue";
 export { default as EventTicket, renderOptions as eventTicketOptions } from "./EventTicket/EventTicket.vue";
 export { default as GiftCertificate, renderOptions as giftCertificateOptions } from "./GiftCertificate/GiftCertificate.vue";
+export { default as LessonPlan, renderOptions as lessonPlanOptions } from "./LessonPlan/LessonPlan.vue";
+export { default as MedicalIntakeForm, renderOptions as medicalIntakeFormOptions } from "./MedicalIntakeForm/MedicalIntakeForm.vue";
+export { default as MeetingMinutes, renderOptions as meetingMinutesOptions } from "./MeetingMinutes/MeetingMinutes.vue";
+export { default as PackingSlip, renderOptions as packingSlipOptions } from "./PackingSlip/PackingSlip.vue";
+export { default as PressRelease, renderOptions as pressReleaseOptions } from "./PressRelease/PressRelease.vue";
+export { default as ShippingLabel, renderOptions as shippingLabelOptions } from "./ShippingLabel/ShippingLabel.vue";
+export { default as WorkOrder, renderOptions as workOrderOptions } from "./WorkOrder/WorkOrder.vue";
+export * from "./doc.js";
+export * from "./footers.js";
 export * from "./invoice.js";
 export * from "./report.js";
 export * from "./event.js";

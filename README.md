@@ -29,13 +29,15 @@ pnpm exec vite          # playground at http://localhost:5173 (sidebar: every co
 | `node scripts/e2e-phase2b.mjs` | Table, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage | `out/phase2b/` |
 | `node scripts/e2e-phase3a.mjs` | six invoice blocks + compare PNGs against pdfcn | `out/phase3a/` |
 | `node scripts/e2e-phase3b1.mjs` | report-financial/marketing/operations/security, event-agenda/ticket, gift-certificate | `out/phase3b1/` |
+| `node scripts/e2e-phase3b2.mjs` | lesson-plan, medical-intake-form, meeting-minutes, packing-slip, press-release, shipping-label, work-order | `out/phase3b2/` |
 
 `PROGRESS.md` has the per-phase notes, results, Takumi limitations and known gaps.
 
 ## Status
 
-Phase 1 render core, 2a/2b all 24 components, 3a six invoices: done. 3b-1 (this README's last update) adds seven blocks; the remaining
-blocks, the nine named themes, the playground polish and `llms.txt` are not built yet. Not published to npm; SFCs need Vite.
+Phase 1 render core, 2a/2b all 24 components, 3a six invoices, 3b-1 seven blocks, 3b-2 the last seven blocks (lesson-plan, medical-intake-form,
+meeting-minutes, packing-slip, press-release, shipping-label, work-order): done, so all 20 pdfcn blocks are ported. The nine named themes, the
+playground polish and `llms.txt` are not built yet. Not published to npm; SFCs need Vite.
 
 ## Credits and licence
 
