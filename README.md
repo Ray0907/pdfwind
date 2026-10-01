@@ -4,6 +4,30 @@ Vue 3 + Tailwind v4 components and document blocks that render to PDF with [Taku
 The same code runs in Node and in the browser: write a document as Vue components, call `renderPdf(Component, props, options)`, get PDF bytes.
 Feature target: [pdfcn](https://github.com/shadcn-labs/pdfcn) (props, variants and defaults follow it); styling is Tailwind classes plus semantic CSS-variable tokens (`src/themes/default.css`).
 
+## Preview
+
+Rendered by this repo's own E2E scripts (`scripts/screenshots.sh` rebuilds these images from `out/`).
+
+**Six invoices**
+
+![Six invoice blocks](docs/images/invoices.png)
+
+**Reports**
+
+![Four report blocks](docs/images/reports.png)
+
+**More blocks** (event agenda, lesson plan, patient intake form, meeting minutes, packing slip, press release, work order, gift certificate)
+
+![Document blocks](docs/images/blocks.png)
+
+**Other page sizes** (event ticket, shipping label)
+
+![Ticket and shipping label](docs/images/small-formats.png)
+
+**Components** (heading, card, list, data table, graph, form)
+
+![Components](docs/images/components.png)
+
 ```js
 import { renderPdf } from "./src/render/node.js";           // browser: ./src/render/browser.js
 import { InvoiceModern, InvoiceFooter, blockPage } from "./src/blocks/index.js";
