@@ -1,0 +1,19 @@
+/* pdfwind theme "dark": a dark page (the PDF paper itself is painted with --background, margins included).
+   Not a pdfcn theme: pdfcn has no dark preset. Type scale, gaps, fonts and page margins are the default theme's (this file only changes colors),
+   and the status colors are the light-surface counterparts of the default ones so they stay readable on the dark paper.
+   Contrast (WCAG): foreground/background 14.7:1, muted-foreground/background 8.0:1, muted-foreground/muted 7.2:1, primary-foreground/primary 7.6:1. */
+:root {
+  --background: #0f1115;
+  --foreground: #dfe3ec;
+  --muted: #1a1d24;
+  --muted-foreground: #a3a9b6;
+  --primary: #7aa2ff;
+  --primary-foreground: #0b1020;
+  --border: #2b303b;
+  --accent: #9aa3b2;
+  --destructive: #f87171;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --info: #38bdf8;
+  --block-muted: #1a1d24;
+}

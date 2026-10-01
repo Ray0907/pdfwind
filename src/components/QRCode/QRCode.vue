@@ -7,8 +7,8 @@ defineOptions({ inheritAttrs: false });
 const props = defineProps({
   value: { type: String, required: true },
   size: { type: Number, default: 100 }, // pt
-  color: { type: String, default: "#000000" }, // theme token or any CSS color
-  backgroundColor: { type: String, default: "#ffffff" }, // "transparent" for none
+  color: { type: String, default: "#000000" }, // token-ok: scanning needs dark modules on a light ground; a theme token or any CSS color
+  backgroundColor: { type: String, default: "#ffffff" }, // token-ok: see color; "transparent" for none
   errorLevel: { type: String, default: "M" }, // L | M | Q | H
   margin: { type: Number, default: 2 }, // quiet zone, in modules
   caption: String,

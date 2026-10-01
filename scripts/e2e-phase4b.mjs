@@ -38,10 +38,10 @@ await section("model", async () => {
   const css = (n) => readFileSync(`src/themes/${n}.css`, "utf8");
   const bases = themeNames.map((n) => [n, BM.baseState(n, css(n))]);
   const noisy = bases.filter(([, r]) => r.issues.some((i) => i.level !== "note"));
-  check(g, "all 10 shipped theme CSS files parse with zero unknown/rejected variables (default.css's Tailwind-side scale is recognized as fixed)", !noisy.length, noisy.map(([n, r]) => `${n}: ${r.issues.filter((i) => i.level !== "note").map((i) => i.variable)}`).join("; ") || "10/10 clean (only 'not set' notes for --font-body and page margins)");
+  check(g, "all shipped theme CSS files parse with zero unknown/rejected variables (default.css's Tailwind-side scale is recognized as fixed)", !noisy.length, noisy.map(([n, r]) => `${n}: ${r.issues.filter((i) => i.level !== "note").map((i) => i.variable)}`).join("; ") || `${themeNames.length}/${themeNames.length} clean (only 'not set' notes for --font-body and page margins)`);
   check(g, "parsing default.css gives exactly the builder's defaultState()", BM.statesEqual(bases[0][1].state, BM.defaultState()), "identical");
   const fixed = bases.every(([n, r]) => { const c = BM.toCss(r.state), r2 = BM.fromCss(c, BM.defaultState()); return BM.toCss({ ...r2.state, base: r.state.base }) === c && !r2.issues.length; });
-  check(g, "toCss(fromCss(toCss(x))) is a fixed point for all 10 themes with no issues", fixed, "10/10");
+  check(g, "toCss(fromCss(toCss(x))) is a fixed point for every shipped theme with no issues", fixed, `${themeNames.length}/${themeNames.length}`);
   let bad = 0; const N = 200;
   for (let i = 0; i < N; i++) { const s = randomState(), r = BM.fromCss(BM.toCss(s), BM.defaultState()); if (r.issues.length || !BM.statesEqual({ ...r.state, base: s.base }, s)) bad++; }
   check(g, `round trip is lossless for ${N} random states (12 colors, 2 fonts, 21 numeric values, name)`, bad === 0, `${N - bad}/${N} identical, 0 issues`);
@@ -50,7 +50,7 @@ await section("model", async () => {
   const r = BM.fromCss(sample, BM.defaultState()), by = (v) => r.issues.find((i) => i.variable.includes(v));
   const declared = [...sample.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]);
   const accounted = declared.filter((d) => r.issues.some((i) => i.variable.split(", ").includes(d)) || ["--text-h1", "--leading-body", "--primary", "--font-heading", "--page-margin-top", "--muted-foreground", "--accent"].includes(d));
-  check(g, "importer reports instead of dropping: unknown, out-of-range, non-number, bad hex, rgb(), fixed-scale edit, unbundled font, derived values", declared.length === accounted.length && by("--foo-bar")?.level === "warning" && by("--text-h2")?.level === "error" && by("--text-h3")?.level === "error" && by("--info")?.level === "error" && by("--success")?.level === "error" && by("--font-body")?.level === "error" && by("--spacing")?.level === "warning" && by("--color-primary")?.level === "warning" && by("--block-muted")?.level === "warning", `${declared.length} declarations: ${accounted.length} applied or reported; ${r.issues.map((i) => `${i.level}:${i.variable}`).join(" ")}`);
+  check(g, "importer reports instead of dropping: unknown, out-of-range, non-number, bad hex, rgb(), fixed-scale edit, unbundled font, derived values", declared.length === accounted.length && by("--foo-bar")?.level === "warning" && by("--text-h2")?.level === "error" && by("--text-h3")?.level === "error" && by("--info")?.level === "error" && by("--success")?.level === "error" && by("--font-body")?.level === "error" && by("--spacing")?.level === "warning" && by("--color-primary")?.level === "warning" && by("--block-muted")?.level === "note", `${declared.length} declarations: ${accounted.length} applied or reported; ${r.issues.map((i) => `${i.level}:${i.variable}`).join(" ")}`);
   check(g, "valid values from the same file are applied (h1 30, primary #0f4c81, #abc -> #aabbcc note, heading font Lora, name, margin) and invalid ones keep the old value", r.state.type.h.h1 === 30 && r.state.colors.primary === "#0f4c81" && r.state.colors.accent === "#aabbcc" && r.state.fonts.heading === "Lora" && r.state.name === "mine" && r.state.margin.top === 20 && r.state.type.h.h2 === 20 && r.state.colors.info === "#0369a1" && r.state.fonts.body === "Inter" && r.state.colors["muted-foreground"] === "#a1a1aa", `applied ${r.applied}`);
   check(g, "derived values are normalized with a note (per-size line heights, body rule) and 'not set' variables are listed", r.issues.some((i) => i.level === "note" && /line-height/.test(i.variable)) && r.issues.some((i) => i.level === "note" && /body/.test(i.variable)) && r.issues.some((i) => i.level === "note" && /not set/.test(i.message)), r.issues.filter((i) => i.level === "note").map((i) => i.variable.slice(0, 40)).join(" | "));
   // contrast independent
@@ -81,7 +81,7 @@ await section("render", async () => {
   // blocks follow builder muted colors
   const B = await blocks(), im = demos["invoice-modern"], x = BM.defaultState(); x.colors["muted-foreground"] = "#ff0000";
   writeFileSync(`${OUT}/pdf/node-muted.pdf`, await renderPdf(im.component, {}, { ...(im.options ?? {}), themeCss: BM.toCss(x) }));
-  check(g, "blocks pick up the builder's muted-foreground (--block-muted-foreground is exported): red labels in invoice-modern", colorStats(raster(`${OUT}/pdf/node-muted.pdf`, 1, { dpi: 144 }), [255, 0, 0], { tol: 40 }).n > 80 && !!B, `${colorStats(raster(`${OUT}/pdf/node-muted.pdf`, 1, { dpi: 144 }), [255, 0, 0], { tol: 40 }).n} red px`);
+  check(g, "blocks pick up the builder's muted-foreground (blocks follow --muted-foreground): red labels in invoice-modern", colorStats(raster(`${OUT}/pdf/node-muted.pdf`, 1, { dpi: 144 }), [255, 0, 0], { tol: 40 }).n > 80 && !!B, `${colorStats(raster(`${OUT}/pdf/node-muted.pdf`, 1, { dpi: 144 }), [255, 0, 0], { tol: 40 }).n} red px`);
 });
 
 // ================= browser =================
@@ -356,7 +356,7 @@ try {
       if (!(nFail ? new RegExp(`${nFail} of 4 pairs are below 4.5:1`).test(summary) : /All 4 pairs reach 4.5:1/.test(summary))) ok = false;
       check(g, `${label}: the four ratios, Pass/Fail words and summary equal an independent calculation`, ok, lines.join("; "));
     };
-    await verify("default theme (muted pairs fail, as in pdfcn's minimal)");
+    await verify("default theme (all four pairs pass since muted-foreground is #71717a)");
     await setHex(page, "foreground", "#777777"); await setHex(page, "muted-foreground", "#595959"); await setHex(page, "primary", "#fde047"); await setHex(page, "primary-foreground", "#ffffff"); await settle(page);
     await verify("after editing foreground #777777, muted foreground #595959, primary yellow with white text");
     await page.locator("#clone-from").selectOption("corporate"); await page.getByRole("button", { name: "Clone theme" }).click(); await settle(page);
@@ -491,13 +491,13 @@ try {
     const hb = await chromium.launch({ headless: false });
     for (const [w, h, name] of [[1280, 900, "1280"], [360, 780, "360"]]) {
       const c = await hb.newContext({ viewport: { width: w, height: h } }), p = watch(await c.newPage());
-      await p.goto(`${base}&base=vivid&doc=components-all`); await settle(p); await p.waitForTimeout(1200);
+      await p.goto(`${base}&base=vivid&doc=showcase`); await settle(p); await p.waitForTimeout(1200);
       await p.screenshot({ path: `${OUT}/builder-${name}.png`, fullPage: name === "360" ? false : false });
       if (name === "360") { await p.evaluate(() => document.querySelector("#preview").scrollIntoView()); await p.waitForTimeout(600); await p.screenshot({ path: `${OUT}/builder-360-preview.png` }); }
       await c.close();
     }
     await hb.close();
-  } catch (e) { headed = false; const hb = await chromium.launch(); for (const [w, h, name] of [[1280, 900, "1280"], [360, 780, "360"]]) { const c = await hb.newContext({ viewport: { width: w, height: h } }), p = await c.newPage(); await p.goto(`${base}&base=vivid&doc=components-all`); await settle(p); await p.screenshot({ path: `${OUT}/builder-${name}.png` }); await c.close(); } await hb.close(); }
+  } catch (e) { headed = false; const hb = await chromium.launch(); for (const [w, h, name] of [[1280, 900, "1280"], [360, 780, "360"]]) { const c = await hb.newContext({ viewport: { width: w, height: h } }), p = await c.newPage(); await p.goto(`${base}&base=vivid&doc=showcase`); await settle(p); await p.screenshot({ path: `${OUT}/builder-${name}.png` }); await c.close(); } await hb.close(); }
   check("screenshots", `screenshots at 1280px and 360px written to out/phase4b/ (${headed ? "headed Chromium: the PDF is visible" : "headless fallback: the PDF viewer area is blank"})`, ["builder-1280.png", "builder-360.png"].every((f) => existsSync(`${OUT}/${f}`)), `${OUT}/builder-1280.png, builder-360.png${headed ? ", builder-360-preview.png" : ""}`);
 } catch (e) { check("browser", "browser run", false, String(e?.stack ?? e).slice(0, 400)); }
 finally { await browser?.close(); await server?.close(); await close(); }

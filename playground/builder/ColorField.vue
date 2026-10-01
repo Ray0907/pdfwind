@@ -12,7 +12,7 @@ const onPicker = (e) => { draft.value = e.target.value; error.value = ""; emit("
 const onHex = (e) => { draft.value = e.target.value.trim(); if (isHex(draft.value)) { error.value = ""; emit("live", draft.value.toLowerCase()); } };
 const onHexChange = () => {
   if (isHex(draft.value)) { error.value = ""; draft.value = draft.value.toLowerCase(); emit("commit"); }
-  else error.value = `"${draft.value}" is not a color. Use 6 hex digits like #1a2b3c.`;
+  else error.value = `"${draft.value}" is not a color. Use 6 hex digits like #rrggbb.`;
 };
 </script>
 

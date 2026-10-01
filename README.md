@@ -24,9 +24,21 @@ Rendered by this repo's own E2E scripts (`scripts/screenshots.sh` rebuilds these
 
 ![Ticket and shipping label](docs/images/small-formats.png)
 
-**Components** (heading, card, list, data table, graph, form)
+**Components in one document** (heading, text, alert, badges, graph, list, data table, QR code, form, signature: the playground's first screen, default theme)
 
-![Components](docs/images/components.png)
+![Components showcase](docs/images/components.png)
+
+**The same document in the `dark` theme** (every color is a theme token, and the PDF paper itself is painted with the theme's background)
+
+![Components showcase, dark theme](docs/images/components-dark.png)
+
+**Eleven themes** (default, pdfcn's nine, dark), switched at run time with `{ theme: "vivid" }`
+
+![The themes side by side](docs/images/themes.png)
+
+**Theme Builder** (playground `?view=builder`: colors, fonts, sizes, gaps and margins with live WCAG contrast, undo/redo, CSS export/import)
+
+![Theme Builder](docs/images/theme-builder.png)
 
 ```js
 import { renderPdf } from "./src/render/node.js";           // browser: ./src/render/browser.js
@@ -53,6 +65,7 @@ pnpm exec vite          # playground at http://localhost:5173 (sidebar: every co
 | `node scripts/e2e-phase2b.mjs` | Table, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage | `out/phase2b/` |
 | `node scripts/e2e-phase3a.mjs` | six invoice blocks + compare PNGs against pdfcn | `out/phase3a/` |
 | `node scripts/e2e-phase3b1.mjs` | report-financial/marketing/operations/security, event-agenda/ticket, gift-certificate | `out/phase3b1/` |
+| `node scripts/e2e-phase5.mjs` | color tokens guard, dark theme + painted paper, playground light/dark + axe, llms.txt examples, Nuxt example (install, build, server route, page), README showcase and images | `out/phase5/` |
 | `node scripts/e2e-phase4b.mjs` | the Theme Builder: controls, history, persistence, export/import, contrast, keyboard, axe | `out/phase4b/` |
 | `node scripts/e2e-phase4a.mjs` | 10 themes x 20 blocks + component sampler: fonts, colors, headings, contrast, lazy font loading, picker | `out/phase4a/` |
 | `node scripts/e2e-phase3b2.mjs` | lesson-plan, medical-intake-form, meeting-minutes, packing-slip, press-release, shipping-label, work-order | `out/phase3b2/` |
@@ -61,7 +74,8 @@ pnpm exec vite          # playground at http://localhost:5173 (sidebar: every co
 
 ## Themes
 
-Nine themes ported from pdfcn plus the default: `blueprint corporate elegant executive forest minimal modern professional vivid`.
+Nine themes ported from pdfcn plus the default and a `dark` theme: `blueprint corporate elegant executive forest minimal modern professional vivid dark`.
+Every color in the library is a theme token (`bg-primary`, `text-muted-foreground`, ...; `scripts/check-tokens.mjs` fails the E2E on a palette class or a raw hex), and `renderPdf` paints the page itself with the theme's `--background`, so a dark theme has no white margins.
 They are runtime-switchable: no rebuild, no remount.
 
 ```js
@@ -80,11 +94,31 @@ pdfcn's PDF base-14 names have no Takumi equivalent, so Helvetica -> Inter, Time
 against a live preview of any document, watch the WCAG contrast of the key pairs, undo/redo, then copy or download `theme.css` and pass it as `themeCss`
 (`--font-body` / `--font-heading` pick the bundled fonts). Import takes a theme CSS back in and reports anything it cannot use. Screenshots: `out/phase4b/`.
 
+## Use with Vue / Nuxt
+
+pdfwind is not on npm: clone the repository and import from `src/`. Components are Vue SFCs, so a bundler (Vite, Nuxt) or Vite's SSR loader runs them.
+
+- **Vue + Vite**: `import { renderPdf } from "./src/render/browser.js"` for the browser (or `<PdfPreview :component :options="{ theme }" />`), `./src/render/node.js` in Node.
+- **Nuxt 4**: [`examples/nuxt`](examples/nuxt) is a small app with a server route (`GET /api/invoice.pdf?theme=vivid&number=INV-1&client=Initech`, validated, `400` with a clear message otherwise) and a client-only `<PdfPreview>` with a theme switcher.
+  `cd examples/nuxt && pnpm install && pnpm dev`. Its README lists what Nitro bundling needed (the Vue plugin for the server, server assets for the wasm, fonts and CSS).
+- **For LLMs and agents**: [`llms.txt`](llms.txt) (index) and [`llms-full.txt`](llms-full.txt) (every component and block with props, types, defaults, variants and slots, parsed from the source; the `renderPdf` options; themes; fonts; Takumi's CSS limits; runnable examples). Regenerate with `node scripts/gen-llms.mjs`.
+
+## Try it
+
+```
+pnpm install
+pnpm exec vite        # root: playground, opens the showcase; pick any component, block or theme in the sidebar
+# ?view=builder       # the Theme Builder
+```
+
+The sidebar has a theme picker, and the page has a System / Light / Dark switch for the playground chrome (the PDF keeps its own paper color).
+There is no hosted demo; the screenshots above are produced by `scripts/screenshots.sh` from the E2E outputs.
+
 ## Status
 
-Phase 1 render core, 2a/2b all 24 components, 3a six invoices, 3b-1 seven blocks, 3b-2 the last seven blocks (lesson-plan, medical-intake-form,
-meeting-minutes, packing-slip, press-release, shipping-label, work-order): done, so all 20 pdfcn blocks are ported. 4a: the nine named themes + bundled fonts + runtime switching + playground picker. 4b: the Theme Builder
-(playground `?view=builder`). Playground polish and `llms.txt` are not built yet. Not published to npm; SFCs need Vite.
+Phase 1 render core, 2a/2b all 24 components, 3a six invoices, 3b-1 and 3b-2 the other 14 blocks (all 20 pdfcn blocks ported), 4a themes + fonts,
+4b the Theme Builder, and a first slice of phase 5: `llms.txt`, the Nuxt example, the `dark` theme with painted paper, token-only colors, the showcase and these screenshots.
+Not done: a hosted live playground, npm publishing, further phase 5 items. Not published to npm; SFCs need Vite.
 
 ## Credits and licence
 

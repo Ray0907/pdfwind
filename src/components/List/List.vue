@@ -30,8 +30,9 @@ const cell = ["numbered", "checklist", "icon"];
             <!-- tick drawn from two borders: no glyph needed -->
             <div v-if="item.checked ?? true" class="h-[7pt] w-[3.5pt] border-b-[1.5pt] border-r-[1.5pt] border-primary-foreground" style="transform: translateY(-1pt) rotate(45deg)" />
           </div>
-          <div v-else class="flex size-5 items-center justify-center rounded-md bg-primary">
-            <svg width="11" height="11" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.3 16.5,14 18.2,21.5 12,17.5 5.8,21.5 7.5,14 2,9.3 9,9" fill="#ffffff" /></svg>
+          <div v-else class="flex size-5 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <!-- currentColor: the HTML wrapper carries the token color (Takumi does not resolve var() in SVG attributes) -->
+            <svg width="11" height="11" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.3 16.5,14 18.2,21.5 12,17.5 5.8,21.5 7.5,14 2,9.3 9,9" fill="currentColor" /></svg>
           </div>
         </div>
 

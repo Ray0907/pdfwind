@@ -15,5 +15,5 @@ defineProps({ data: { type: Object, default: () => reportFinancialSample } });
 </script>
 
 <template>
-  <ReportLayout :data="data" title-prefix="Financial Report" status-label="Finance: Healthy" status-tone="success" graph-variant="line" graph-title="Revenue trajectory" graph-subtitle="Quarterly weighted revenue index" :graph-show-values="false" :graph-colors='["#0F172A"]' />
+  <ReportLayout :data="data" title-prefix="Financial Report" status-label="Finance: Healthy" status-tone="success" graph-variant="line" graph-title="Revenue trajectory" graph-subtitle="Quarterly weighted revenue index" :graph-show-values="false" :graph-colors='["primary"]' />
 </template>

@@ -111,10 +111,10 @@ await section("lesson-plan", async () => {
   const img1 = raster(file(g), 1, { dpi: 72 }), t0 = find(W(g, 1), "Time").y0, vcols = [];
   for (let x = 56; x < 540; x++) { let run = 0, best = 0; for (let y = Math.floor(t0); y < Math.min(img1.h, Math.floor(t0) + 230); y++) { const i = (y * img1.w + x) * 3; if (img1.px[i] < 242) { run++; best = Math.max(best, run); } else run = 0; } if (best > 150 && (!vcols.length || x - vcols.at(-1) > 2)) vcols.push(x); }
   check(g, "sequence table grid drawn: vertical column rules (>= 3 interior + 2 outer, each > 150pt tall)", vcols.length >= 5, `${vcols.length} vertical rules at x ${vcols.join(",")}`);
-  const tint = colorStats(R(g, 1), hex("#7c3aed"), { tol: 12 }).n;
-  check(g, "accent color (#7c3aed) drawn on the essential-question block", tint > 150, `${tint} px`);
+  const tint = colorStats(R(g, 1), hex("#0369a1"), { tol: 12 }).n;
+  check(g, "accent color (#0369a1) drawn on the essential-question block", tint > 150, `${tint} px`);
   await out("accent-lesson", b, { ...s, accentColor: "#dc2626" });
-  check(g, "props drive it: accentColor #dc2626 replaces the violet", colorStats(R("accent-lesson", 1), hex("#dc2626"), { tol: 12 }).n > 150 && colorStats(R("accent-lesson", 1), hex("#7c3aed"), { tol: 12 }).n < 30, "");
+  check(g, "props drive it: accentColor #dc2626 replaces the violet", colorStats(R("accent-lesson", 1), hex("#dc2626"), { tol: 12 }).n > 150 && colorStats(R("accent-lesson", 1), hex("#0369a1"), { tol: 12 }).n < 30, "");
   const cjk = { ...s, lessonTitle: "線性方程式入門", subject: "數學", teacherName: "王老師", essentialQuestion: "我們如何用線性方程式表示現實關係？", objectives: ["定義線性方程式", ...s.objectives.slice(1)], sequence: s.sequence.map((r, i) => (i === 0 ? { ...r, activity: "暖身", description: "複習一步方程式", notes: "黑板上五題" } : r)) };
   await out("cjk-lesson", b, cjk);
   const ct = T("cjk-lesson"), cm = has(ct, ["線性方程式入門", "數學", "王老師", "我們如何用線性方程式表示現實關係？", "定義線性方程式", "暖身", "複習一步方程式", "黑板上五題"]);
@@ -139,8 +139,8 @@ await section("medical-intake-form", async () => {
   check(g, "p2: signature + date lines drawn above 'Patient / Guardian Signature' and 'Date'", sr.length >= 1, `${sr.length} line(s) at y ${sr.map(f1).join(",")}`);
   const med = find(ws2, "MEDICATIONS"), all = find(ws2, "ALLERGIES"), tr = hrules(i2, 72, med.y1, all.y0, 48, 550, 300, 248);
   check(g, "p2: medications grid table drawn with blank writing rows (>= 3 full-width rules)", tr.length >= 3, `${tr.length} rules`);
-  const teal = colorStats(R(g, 2), hex("#0d9488"), { tol: 14 }).n;
-  check(g, "accent color (#0d9488) drawn on the p2 section rules and consent block", teal > 300, `${teal} px`);
+  const teal = colorStats(R(g, 2), hex("#0369a1"), { tol: 14 }).n;
+  check(g, "accent color (#0369a1) drawn on the p2 section rules and consent block", teal > 300, `${teal} px`);
   // toggles
   await out("toggle-medical", b, { ...s, emergencyContact: false, insurance: false, allergies: false });
   const tt = T("toggle-medical");
@@ -220,9 +220,9 @@ await section("press-release", async () => {
   check(g, "full headline, both body paragraphs and the full quote are intact (no truncation)", [s.headline, s.subheadline, ...s.body, `“${s.quotes[0].text}”`].every((x) => txt.replace(/- /g, "-").includes(norm(x))), "");
   const ws = W(g, 1), by = (t) => find(ws, t).y0, order = ["FOR", "Acme", "Launches", "Revolutionary", "SAN", "DocKit", "ABOUT", "MEDIA", "###"].map((t) => ({ t, y: t === "Acme" ? ws.filter((w) => w.t === "Acme")[1]?.y0 ?? 0 : by(t) }));
   check(g, "reading order top to bottom: release line < headline < dateline < body < quote < about < contact < ###", order.every((o, i) => !i || o.y >= order[i - 1].y), order.map((o) => `${o.t}@${f1(o.y)}`).join(" "));
-  const blue = colorStats(R(g, 1), hex("#1e40af"), { tol: 14 }).n;
-  check(g, "accent color (#1e40af) drawn: release line text + quote bar", blue > 400, `${blue} px`);
-  const bar = colorStats(R(g, 1), hex("#1e40af"), { tol: 14, box: { x0: 90, y0: 700, x1: 140, y1: 1300 } });
+  const blue = colorStats(R(g, 1), hex("#0369a1"), { tol: 14 }).n;
+  check(g, "accent color (#0369a1) drawn: release line text + quote bar", blue > 400, `${blue} px`);
+  const bar = colorStats(R(g, 1), hex("#0369a1"), { tol: 14, box: { x0: 90, y0: 700, x1: 140, y1: 1300 } });
   check(g, "quote left bar drawn as a vertical accent stripe (tall, narrow)", bar.n > 300 && bar.y1 - bar.y0 > 80 && bar.x1 - bar.x0 < 12, `${bar.n}px, ${bar.x1 - bar.x0 + 1}px wide x ${bar.y1 - bar.y0 + 1} tall`);
   await out("minimal-press", b, { ...s, subheadline: undefined, quotes: undefined, socialLinks: undefined, address: undefined });
   const nt = T("minimal-press");

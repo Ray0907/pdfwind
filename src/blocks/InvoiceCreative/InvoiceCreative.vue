@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import { cn, rest } from "../../lib/ui.js";
+import { cn, rest, color } from "../../lib/ui.js";
 import PageHeader from "../../components/PageHeader/PageHeader.vue";
 import Section from "../../components/Section/Section.vue";
 import Text from "../../components/Text/Text.vue";
@@ -13,7 +13,7 @@ import { blockVars, money, rowsOf, invoiceCreativeSample } from "../invoice.js";
 defineOptions({ inheritAttrs: false });
 const props = defineProps({
   data: { type: Object, default: () => invoiceCreativeSample },
-  accent: { type: String, default: "#3b82f6" }, // the creative invoice's accent color (labels, bar, total)
+  accent: { type: String, default: "info" }, // the creative invoice's accent: a theme token name or any CSS color (labels, bar, total)
   currency: { type: String, default: "USD" },
   locale: { type: String, default: "en-US" },
 });
@@ -24,7 +24,7 @@ const info = computed(() => [{ key: "Issue Date", value: props.data.invoiceDate 
 </script>
 
 <template>
-  <div v-bind="rest($attrs)" :class="cn('flex flex-col', $attrs.class)" :style="[$attrs.style, blockVars, { '--accent': accent }]">
+  <div v-bind="rest($attrs)" :class="cn('flex flex-col', $attrs.class)" :style="[$attrs.style, blockVars, { '--accent': color(accent) }]">
     <div class="mb-section flex flex-row items-center justify-between">
       <div class="flex-1"><PageHeader variant="centered" :title="data.companyName" :subtitle="`${data.subtitle} · ${data.companyAddress}`" :margin-bottom="0" /></div>
       <div class="flex flex-col items-center rounded-md bg-primary px-5 py-3.5">

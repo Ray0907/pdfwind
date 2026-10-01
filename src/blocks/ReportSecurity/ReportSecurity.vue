@@ -15,5 +15,5 @@ defineProps({ data: { type: Object, default: () => reportSecuritySample } });
 </script>
 
 <template>
-  <ReportLayout :data="data" title-prefix="Security Report" status-label="Security: Action Needed" status-tone="destructive" graph-variant="donut" graph-title="Open risk distribution" graph-subtitle="High/Medium/Low workload share" :graph-show-values="true" :graph-colors='["#DC2626", "#F59E0B", "#16A34A", "#0EA5E9"]' :graph-data='[{ label: "High Risk", value: 14 }, { label: "Medium Risk", value: 17 }, { label: "Low Risk", value: 8 }, { label: "Info", value: 4 }]' />
+  <ReportLayout :data="data" title-prefix="Security Report" status-label="Security: Action Needed" status-tone="destructive" graph-variant="donut" graph-title="Open risk distribution" graph-subtitle="High/Medium/Low workload share" :graph-show-values="true" :graph-colors='["destructive", "warning", "success", "info"]' :graph-data='[{ label: "High Risk", value: 14 }, { label: "Medium Risk", value: 17 }, { label: "Low Risk", value: 8 }, { label: "Info", value: 4 }]' />
 </template>

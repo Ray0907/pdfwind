@@ -7,7 +7,7 @@ export const renderOptions = { ...eventAgendaPage, footer: EventAgendaFooter };
 
 <script setup>
 import { computed } from "vue";
-import { cn, rest } from "../../lib/ui.js";
+import { cn, rest, color, onColor, tint } from "../../lib/ui.js";
 import PageBreak from "../../components/PageBreak/PageBreak.vue";
 import { blockVars } from "../invoice.js";
 import { eventAgendaSample } from "../event.js";
@@ -16,8 +16,9 @@ defineOptions({ inheritAttrs: false });
 // `data`: pdfcn's EventAgendaProps (eventName, date, endDate, venue, days[{ label, date, sessions }], tracks, accentColor, wifiInfo, emergencyContact).
 // One page per day (a long day continues on the next page). Sessions with the same start time sit side by side.
 const props = defineProps({ data: { type: Object, default: () => eventAgendaSample } });
-const accent = computed(() => props.data.accentColor ?? "var(--primary)");
-const trackColor = computed(() => Object.fromEntries((props.data.tracks ?? []).map((t) => [t.name.toLowerCase(), t.color])));
+const accent = computed(() => color(props.data.accentColor ?? "primary")); // a theme token name or any CSS color
+const onAccent = computed(() => onColor(props.data.accentColor ?? "primary"));
+const trackColor = computed(() => Object.fromEntries((props.data.tracks ?? []).map((t) => [t.name.toLowerCase(), color(t.color)])));
 const slots = (sessions) => { const out = [], by = new Map(); for (const s of sessions) { if (!by.has(s.time)) { const g = { time: s.time, sessions: [] }; by.set(s.time, g); out.push(g); } by.get(s.time).sessions.push(s); } return out; };
 </script>
 
@@ -33,7 +34,7 @@ const slots = (sessions) => { const out = [], by = new Map(); for (const s of se
           <div class="text-[8.5pt] text-muted-foreground">{{ data.date }}{{ data.endDate ? ` – ${data.endDate}` : "" }} • {{ data.venue }}</div>
         </div>
         <div class="flex flex-col items-end justify-center">
-          <div class="rounded-sm px-2.5 py-1 text-[10pt] font-bold uppercase tracking-[0.8pt] text-white" :style="{ backgroundColor: accent }">Agenda</div>
+          <div class="rounded-sm px-2.5 py-1 text-[10pt] font-bold uppercase tracking-[0.8pt]" :style="{ backgroundColor: accent, color: onAccent }">Agenda</div>
         </div>
       </div>
       <!-- day banner -->
@@ -45,7 +46,7 @@ const slots = (sessions) => { const out = [], by = new Map(); for (const s of se
       <div v-if="data.tracks?.length" class="mb-2 flex flex-row flex-wrap items-center gap-1.5">
         <span class="mr-1 text-[7.5pt] font-bold uppercase tracking-[0.5pt] text-muted-foreground">Tracks:</span>
         <div v-for="t in data.tracks" :key="t.name" class="flex flex-row items-center rounded-sm border-[1pt] border-border bg-muted px-1.5 py-0.5">
-          <div class="mr-1 size-[7pt] rounded-full" :style="{ backgroundColor: t.color }" /><span class="text-[7.5pt] font-semibold">{{ t.name }}</span>
+          <div class="mr-1 size-[7pt] rounded-full" :style="{ backgroundColor: color(t.color) }" /><span class="text-[7.5pt] font-semibold">{{ t.name }}</span>
         </div>
       </div>
       <!-- time grid -->
@@ -61,7 +62,7 @@ const slots = (sessions) => { const out = [], by = new Map(); for (const s of se
         <div v-else class="flex flex-1 flex-row gap-2">
           <div v-for="(s, si) in slot.sessions" :key="si" class="flex flex-1 flex-col rounded-md border-[1pt] border-border bg-background px-2.5 py-[7pt]" :style="trackColor[s.track?.toLowerCase()] && { borderLeftWidth: '3pt', borderLeftColor: trackColor[s.track.toLowerCase()] }">
             <div v-if="s.track || s.room" class="mb-[3pt] flex flex-row items-center gap-1">
-              <span v-if="s.track" class="shrink-0 whitespace-nowrap rounded-sm px-1.5 py-px text-[7pt] font-bold" :style="{ color: trackColor[s.track.toLowerCase()] ?? 'var(--foreground)', backgroundColor: trackColor[s.track.toLowerCase()] ? `${trackColor[s.track.toLowerCase()]}1A` : 'var(--muted)' }">{{ s.track }}</span>
+              <span v-if="s.track" class="shrink-0 whitespace-nowrap rounded-sm px-1.5 py-px text-[7pt] font-bold" :style="{ color: trackColor[s.track.toLowerCase()] ?? 'var(--foreground)', backgroundColor: trackColor[s.track.toLowerCase()] ? tint(trackColor[s.track.toLowerCase()], 10) : 'var(--muted)' }">{{ s.track }}</span>
               <span v-if="s.room" class="shrink-0 whitespace-nowrap rounded-sm border-[1pt] border-border bg-muted px-[5pt] py-px text-[7pt] font-semibold text-muted-foreground">{{ s.room }}</span>
             </div>
             <div class="text-[9pt] font-bold leading-[1.25]">{{ s.title }}</div>

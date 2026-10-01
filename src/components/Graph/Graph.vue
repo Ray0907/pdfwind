@@ -88,11 +88,11 @@ const shapes = computed(() => {
     data.forEach((d, i) => {
       const sweep = (d.value / total) * 360, mid = angle + sweep / 2;
       const slice = arc(cx, cy, r, angle, angle + sweep, inner);
-      out.items.push({ t: "path", rank: 0, color: d.color ? resolve(d.color) : pal(i), d: slice, fill: true }, { t: "path", rank: 1, color: "#ffffff", d: slice, width: 1 });
+      out.items.push({ t: "path", rank: 0, color: d.color ? resolve(d.color) : pal(i), d: slice, fill: true }, { t: "path", rank: 1, color: "var(--background)", d: slice, width: 1 });
       if (sweep > 15) { const p = polar(cx, cy, r * 1.18, mid); label(p.x, p.y + 3, truncate(d.label, 10), { anchor: p.x > cx ? "start" : "end" }); }
       angle += sweep;
     });
-    if (inner && props.centerLabel) { out.items.push({ t: "circle", rank: 2, color: "#ffffff", cx, cy, r: inner }); label(cx, cy + 4, props.centerLabel, { size: 9, fill: FG, bold: true }); }
+    if (inner && props.centerLabel) { out.items.push({ t: "circle", rank: 2, color: "var(--background)", cx, cy, r: inner }); label(cx, cy + 4, props.centerLabel, { size: 9, fill: FG, bold: true }); }
   }
   if (!pie.value && props.xLabel) label(x + w / 2, props.height - 2, props.xLabel, { size: 8 });
   if (!pie.value && props.yLabel) label(2, 7, props.yLabel, { size: 7, anchor: "start" });

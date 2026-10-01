@@ -6,7 +6,7 @@ export const renderOptions = { ...giftCertificatePage };
 
 <script setup>
 import { computed } from "vue";
-import { cn, rest } from "../../lib/ui.js";
+import { cn, rest, color } from "../../lib/ui.js";
 import Mark from "../shared/Mark.vue";
 import Text from "../../components/Text/Text.vue";
 import { money } from "../invoice.js";
@@ -15,7 +15,7 @@ import { giftCertificateSample } from "../event.js";
 defineOptions({ inheritAttrs: false });
 // `data`: pdfcn's GiftCertificateData (amount is a number; currency "USD" by default; `locale` formats it).
 const props = defineProps({ data: { type: Object, default: () => giftCertificateSample }, locale: { type: String, default: "en-US" } });
-const accent = computed(() => props.data.accentColor || "#000000");
+const accent = computed(() => color(props.data.accentColor || "primary")); // a theme token name or any CSS color
 const amount = computed(() => money(props.data.amount, { currency: props.data.currency ?? "USD", locale: props.locale }));
 const label = "mb-1 text-[9pt] font-bold uppercase tracking-[0.5pt] text-muted-foreground";
 </script>

@@ -38,6 +38,7 @@ const sec = "mb-1 text-[8pt] font-bold uppercase tracking-[0.5pt] leading-[1.65]
       <div v-if="data.handlingLabels?.length" class="mt-2 flex flex-row flex-wrap gap-1.5"><div v-for="(l, i) in data.handlingLabels" :key="i" class="bg-foreground px-2 py-1 text-[8pt] font-bold uppercase tracking-[0.5pt] text-background">{{ l }}</div></div>
       <div class="mt-2.5 flex flex-col items-center">
         <PdfImage v-if="data.barcodeUrl" :src="data.barcodeUrl" fit="contain" :height="72" width="100%" />
+        <!-- token-ok: a QR code needs dark modules on a light ground in every theme -->
         <QRCode v-else :value="data.trackingNumber" :size="80" color="#000000" background-color="#ffffff" />
         <div class="mt-1.5 text-xs font-bold uppercase tracking-[0.6pt]">{{ data.trackingNumber }}</div>
       </div>

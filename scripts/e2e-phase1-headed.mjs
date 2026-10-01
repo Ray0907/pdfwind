@@ -34,7 +34,7 @@ try {
   const count = () => page.evaluate(() => window.__pdfwind.renders.length);
   const settle = (n) => page.waitForFunction((n) => window.__pdfwind.renders.length >= n, n, { timeout: 30000 });
 
-  await page.goto(url);
+  await page.goto(url + "?demo=invoice");
   await page.waitForFunction(() => window.__pdfwind?.renders.length >= 1, null, { timeout: 60000 });
   await page.waitForTimeout(1500); // let the viewer paint
 

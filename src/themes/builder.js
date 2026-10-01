@@ -40,7 +40,7 @@ export const RANGES = {
 /** The default theme (src/themes/default.css) as a state; the E2E checks that parsing default.css gives exactly this. */
 export const defaultState = () => ({
   v: STATE_VERSION, name: "default", base: "default",
-  colors: { background: "#ffffff", foreground: "#18181b", muted: "#fafafa", "muted-foreground": "#a1a1aa", primary: "#18181b", "primary-foreground": "#ffffff", border: "#e4e4e7", accent: "#71717a", destructive: "#b91c1c", success: "#15803d", warning: "#a16207", info: "#0369a1" },
+  colors: { background: "#ffffff", foreground: "#18181b", muted: "#fafafa", "muted-foreground": "#71717a", primary: "#18181b", "primary-foreground": "#ffffff", border: "#e4e4e7", accent: "#71717a", destructive: "#b91c1c", success: "#15803d", warning: "#a16207", info: "#0369a1" },
   fonts: { body: "Inter", heading: "Inter" },
   type: { bodySize: 11, lineHeight: 1.65, headingLineHeight: 1.25, h: { h1: 24, h2: 20, h3: 16, h4: 14, h5: 12, h6: 10 } },
   gaps: { paragraph: 14, component: 18, section: 36 },
@@ -77,9 +77,8 @@ ${[1, 2, 3, 4, 5, 6].map((i) => `  --text-h${i}: ${st.type.h[`h${i}`]}pt;`).join
 
 :root {
 ${COLOR_KEYS.map((k) => `  --${k}: ${st.colors[k]};`).join("\n")}
-  /* blocks read these two (literal copies of muted and muted-foreground) instead of their pinned defaults */
+  /* blocks read this (a literal copy of muted) instead of their pinned #f4f4f5 */
   --block-muted: ${st.colors.muted};
-  --block-muted-foreground: ${st.colors["muted-foreground"]};
   --font-body: ${q(st.fonts.body)};
   /* page margins are a render option, not Tailwind: apply them with renderPdf's margin (CSS px = pt x 4/3) */
   --page-margin-top: ${st.margin.top}pt;
@@ -132,8 +131,9 @@ export const fromCss = (css, fallback = defaultState()) => {
     } else if ((m = name.match(/^--color-(.+)$/)) && COLOR_KEYS.includes(m[1])) {
       if (v !== `var(--${m[1]})`) add("warning", name, `ignored: the Tailwind color mapping is fixed (var(--${m[1]}))`);
     } else if (name === "--block-muted" || name === "--block-muted-foreground") {
+      // --block-muted-foreground was exported by earlier builder versions; blocks no longer read it, so it is accepted when it matches and reported when not
       const k = name === "--block-muted" ? "muted" : "muted-foreground";
-      if (v.toLowerCase() !== st.colors[k]) add("warning", name, `ignored: the builder keeps ${name} equal to --${k} (${v} differs from ${st.colors[k]})`);
+      if (v.toLowerCase() !== st.colors[k]) add(name === "--block-muted" ? "note" : "warning", name, `${name === "--block-muted" ? "normalized: the builder keeps it equal to --muted" : "ignored: it is no longer used (blocks follow --muted-foreground)"} (${v} differs from ${st.colors[k]})`);
       else seen.add(name);
     } else if ((m = name.match(/^--spacing-(paragraph|component|section)$/))) num(v, `gaps.${m[1]}`, name);
     else if (name === "--text-body") num(v, "type.bodySize", name);

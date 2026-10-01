@@ -1,0 +1,74 @@
+# pdfwind
+
+> Vue 3 + Tailwind v4 components and document blocks (invoices, reports, forms, tickets, labels) that render to PDF with Takumi. Same code in Node and in the browser, no headless browser. Feature target: pdfcn. Not published to npm: clone the repository.
+
+pdfwind has 29 components, 20 blocks, 11 runtime-switchable themes (default + pdfcn's nine) with bundled fonts, and a Theme Builder in the playground.
+Call `renderPdf(Component, props, { theme, header, footer, themeCss, size, margin })` from `src/render/node.js` (Node) or `src/render/browser.js` (browser, Vite); it returns PDF bytes.
+
+## Docs
+
+- [Full reference](./llms-full.txt): every component and block with props, types, defaults, variants and slots; renderPdf options; themes; fonts; Takumi limits; runnable examples
+- [README](./README.md): overview, screenshots, how to run the playground
+- [PROGRESS](./PROGRESS.md): per-phase notes, test results, known gaps
+
+## Components
+
+- [Stack](./llms-full.txt#stack): `src/components/Stack/Stack.vue`
+- [Section](./llms-full.txt#section): `src/components/Section/Section.vue`
+- [Card](./llms-full.txt#card): `src/components/Card/Card.vue`
+- [Divider](./llms-full.txt#divider): `src/components/Divider/Divider.vue`
+- [KeepTogether](./llms-full.txt#keeptogether): `src/components/KeepTogether/KeepTogether.vue`
+- [PageBreak](./llms-full.txt#pagebreak): `src/components/PageBreak/PageBreak.vue`
+- [PageHeader](./llms-full.txt#pageheader): `src/components/PageHeader/PageHeader.vue`
+- [PageFooter](./llms-full.txt#pagefooter): `src/components/PageFooter/PageFooter.vue`
+- [PageNumber](./llms-full.txt#pagenumber): `src/components/PageNumber/PageNumber.vue`
+- [Watermark](./llms-full.txt#watermark): `src/components/Watermark/Watermark.vue`
+- [Heading](./llms-full.txt#heading): `src/components/Heading/Heading.vue`
+- [Text](./llms-full.txt#text): `src/components/Text/Text.vue`
+- [Link](./llms-full.txt#link): `src/components/Link/Link.vue`
+- [List](./llms-full.txt#list): `src/components/List/List.vue`
+- [Table](./llms-full.txt#table): `src/components/Table/Table.vue`
+- [TableHeader](./llms-full.txt#tableheader): `src/components/Table/TableHeader.vue`
+- [TableBody](./llms-full.txt#tablebody): `src/components/Table/TableBody.vue`
+- [TableFooter](./llms-full.txt#tablefooter): `src/components/Table/TableFooter.vue`
+- [TableRow](./llms-full.txt#tablerow): `src/components/Table/TableRow.vue`
+- [TableCell](./llms-full.txt#tablecell): `src/components/Table/TableCell.vue`
+- [DataTable](./llms-full.txt#datatable): `src/components/DataTable/DataTable.vue`
+- [KeyValue](./llms-full.txt#keyvalue): `src/components/KeyValue/KeyValue.vue`
+- [Graph](./llms-full.txt#graph): `src/components/Graph/Graph.vue`
+- [QRCode](./llms-full.txt#qrcode): `src/components/QRCode/QRCode.vue`
+- [Alert](./llms-full.txt#alert): `src/components/Alert/Alert.vue`
+- [Badge](./llms-full.txt#badge): `src/components/Badge/Badge.vue`
+- [Form](./llms-full.txt#form): `src/components/Form/Form.vue`
+- [Signature](./llms-full.txt#signature): `src/components/Signature/Signature.vue`
+- [PdfImage](./llms-full.txt#pdfimage): `src/components/PdfImage/PdfImage.vue`
+
+## Blocks
+
+- [InvoiceClassic](./llms-full.txt#invoiceclassic): `src/blocks/InvoiceClassic/InvoiceClassic.vue`
+- [InvoiceConsultant](./llms-full.txt#invoiceconsultant): `src/blocks/InvoiceConsultant/InvoiceConsultant.vue`
+- [InvoiceCorporate](./llms-full.txt#invoicecorporate): `src/blocks/InvoiceCorporate/InvoiceCorporate.vue`
+- [InvoiceCreative](./llms-full.txt#invoicecreative): `src/blocks/InvoiceCreative/InvoiceCreative.vue`
+- [InvoiceMinimal](./llms-full.txt#invoiceminimal): `src/blocks/InvoiceMinimal/InvoiceMinimal.vue`
+- [InvoiceModern](./llms-full.txt#invoicemodern): `src/blocks/InvoiceModern/InvoiceModern.vue`
+- [ReportFinancial](./llms-full.txt#reportfinancial): `src/blocks/ReportFinancial/ReportFinancial.vue`
+- [ReportMarketing](./llms-full.txt#reportmarketing): `src/blocks/ReportMarketing/ReportMarketing.vue`
+- [ReportOperations](./llms-full.txt#reportoperations): `src/blocks/ReportOperations/ReportOperations.vue`
+- [ReportSecurity](./llms-full.txt#reportsecurity): `src/blocks/ReportSecurity/ReportSecurity.vue`
+- [EventAgenda](./llms-full.txt#eventagenda): `src/blocks/EventAgenda/EventAgenda.vue`
+- [EventTicket](./llms-full.txt#eventticket): `src/blocks/EventTicket/EventTicket.vue`
+- [GiftCertificate](./llms-full.txt#giftcertificate): `src/blocks/GiftCertificate/GiftCertificate.vue`
+- [LessonPlan](./llms-full.txt#lessonplan): `src/blocks/LessonPlan/LessonPlan.vue`
+- [MedicalIntakeForm](./llms-full.txt#medicalintakeform): `src/blocks/MedicalIntakeForm/MedicalIntakeForm.vue`
+- [MeetingMinutes](./llms-full.txt#meetingminutes): `src/blocks/MeetingMinutes/MeetingMinutes.vue`
+- [PackingSlip](./llms-full.txt#packingslip): `src/blocks/PackingSlip/PackingSlip.vue`
+- [PressRelease](./llms-full.txt#pressrelease): `src/blocks/PressRelease/PressRelease.vue`
+- [ShippingLabel](./llms-full.txt#shippinglabel): `src/blocks/ShippingLabel/ShippingLabel.vue`
+- [WorkOrder](./llms-full.txt#workorder): `src/blocks/WorkOrder/WorkOrder.vue`
+
+## Optional
+
+- [Theme registry](./src/themes/index.js): the ten themes with fonts and page margins
+- [Theme Builder model](./src/themes/builder.js): toCss / fromCss / contrast, pure JS
+- [Nuxt example](./examples/nuxt/README.md): a server route that streams a PDF and a client-only preview
+- [E2E scripts](./scripts): every behavior above is exercised by an `e2e-phase*.mjs` script

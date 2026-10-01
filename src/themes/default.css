@@ -1,4 +1,5 @@
-/* pdfwind default theme: pdfcn's `minimal` theme as Tailwind v4 tokens.
+/* pdfwind default theme: pdfcn's `minimal` theme as Tailwind v4 tokens, with one deliberate difference: muted-foreground is #71717a
+   (4.83:1 on white, 4.63:1 on muted) instead of minimal's #a1a1aa (2.56:1, too faint for print). The named `minimal` theme keeps pdfcn's value.
 
    WHY THE SIZES LOOK ODD (text-sm = 12pt, text-base = 15pt, text-body = 11pt):
    pdfcn defines its type scale in PDF points, not CSS px. Its scale is
@@ -69,7 +70,7 @@
   --background: #ffffff;
   --foreground: #18181b;
   --muted: #fafafa;
-  --muted-foreground: #a1a1aa;
+  --muted-foreground: #71717a;
   --primary: #18181b;
   --primary-foreground: #ffffff;
   --border: #e4e4e7;
@@ -78,6 +79,8 @@
   --success: #15803d;
   --warning: #a16207;
   --info: #0369a1;
+  /* the fill blocks use for muted areas: the reference invoices' #f4f4f5, a touch darker than --muted; named themes set it to their --muted */
+  --block-muted: #f4f4f5;
 }
 
 body {

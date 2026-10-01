@@ -18,7 +18,7 @@ const f1 = (n) => (Math.round(n * 10) / 10).toString();
 // ---- geometry: pt in poppler bboxes, 144dpi rasters (2px per pt) ----
 const DPI = 144, S = DPI / 72;
 const PAGE_W = 595.28, LEFT = 30, RIGHT = PAGE_W - 30, CENTER = PAGE_W / 2; // A4, 30pt margin (40 css px)
-const C = { primary: "#18181b", border: "#e4e4e7", muted: "#fafafa", mutedFg: "#a1a1aa", accent: "#71717a", success: "#15803d", destructive: "#b91c1c", info: "#0369a1", warning: "#a16207", magenta: "#ff00ff" };
+const C = { primary: "#18181b", border: "#e4e4e7", muted: "#fafafa", mutedFg: "#71717a", accent: "#71717a", success: "#15803d", destructive: "#b91c1c", info: "#0369a1", warning: "#a16207", magenta: "#ff00ff" };
 
 const { renderPdf, demos: allDemos, close } = await load();
 // phase 2a covers its own 19 demos; phase 2b has its own script
@@ -339,7 +339,7 @@ await section("Link", async () => {
   const miss = hrefs.filter((h) => !raw.includes(h));
   check(g, "every href becomes a /URI link annotation", raw.includes("/URI") && miss.length === 0, miss.length ? `missing ${miss.join(", ")}` : `${hrefs.length}/${hrefs.length} URIs in the PDF`);
   const col = (t, c, tol = 12) => inBox(n, 1, c, row(wd(n, t), 2), tol).n;
-  check(g, "variants: default accent #71717a, muted #a1a1aa, primary #18181b", col("LK-DEFAULT", C.accent) > 100 && col("LK-MUTED", C.mutedFg) > 100 && col("LK-PRIMARY", C.primary, 6) > 100, `${col("LK-DEFAULT", C.accent)} / ${col("LK-MUTED", C.mutedFg)} / ${col("LK-PRIMARY", C.primary, 6)}px`);
+  check(g, "variants: default accent #71717a, muted #71717a (the default theme's accessible muted-foreground; it equals accent since the contrast change, the minimal theme still tells them apart in e2e-phase4a), primary #18181b", col("LK-DEFAULT", C.accent) > 100 && col("LK-MUTED", C.mutedFg) > 100 && col("LK-PRIMARY", C.primary, 6) > 100, `${col("LK-DEFAULT", C.accent)} / ${col("LK-MUTED", C.mutedFg)} / ${col("LK-PRIMARY", C.primary, 6)}px`);
   const w1 = wd(n, "LK-DEFAULT"), w2 = wd(n, "LK-NOUNDERLINE"), under = (w) => inBox(n, 1, C.accent, { x0: w.x0 + 1, x1: w.x1 + 40, y0: w.y1 - 1.5, y1: w.y1 + 1.5 }, 30).n;
   check(g, "underline always draws a rule; underline=none does not", under(w1) > under(w2) * 2 && under(w1) > 100, `default ${under(w1)}px vs none ${under(w2)}px under the same-size band`);
   const c = wd(n, "LK-CENTER"), r = wd(n, "LK-RIGHT"), lastX = (w) => W(n).filter((x) => near(x.y0, w.y0, 1)).pop().x1;

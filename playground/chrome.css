@@ -1,0 +1,34 @@
+/* The playground's page chrome: ONE set of CSS custom properties for the sidebar, the Theme Builder, the preview frame and the color-scheme toggle.
+   This is the only place with color literals (guarded by scripts/check-tokens.mjs). `light-dark()` follows the used color-scheme:
+   the system setting by default, or the toggle's choice (data-scheme="light" | "dark" on <html>, set before first paint by the inline script in index.html). */
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f4f4f5, #0b0b0e);
+  --surface: light-dark(#ffffff, #17171c);
+  --fg: light-dark(#18181b, #f4f4f5);
+  --fg2: light-dark(#52525b, #b4b4bd);
+  --line: light-dark(#e4e4e7, #2a2a31);
+  --line2: light-dark(#8b8b95, #6b6b76);
+  --btn: light-dark(#ffffff, #1f1f26);
+  --btn-hover: light-dark(#f4f4f5, #2a2a33);
+  --sel: light-dark(#e4e4e7, #2f2f38);
+  --ring: light-dark(#6d28d9, #a78bfa);
+  --accent: light-dark(#5b21b6, #c4b5fd);
+  --accent-fg: light-dark(#ffffff, #1e1b4b);
+  --ok: light-dark(#166534, #86efac);
+  --ok-bg: light-dark(#dcfce7, #14301f);
+  --bad: light-dark(#991b1b, #fca5a5);
+  --bad-bg: light-dark(#fee2e2, #3b1515);
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  /* <PdfPreview> chrome parts (the PDF itself keeps its own paper color) */
+  --pdfwind-preview-bg: var(--surface);
+  --pdfwind-preview-muted: var(--fg2);
+  --pdfwind-preview-accent: var(--accent);
+  --pdfwind-preview-error: var(--bad);
+  --pdfwind-preview-error-bg: var(--bad-bg);
+}
+:root[data-scheme="light"] { color-scheme: light; }
+:root[data-scheme="dark"] { color-scheme: dark; }
+html, body, #app { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }

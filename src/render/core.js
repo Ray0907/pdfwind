@@ -64,6 +64,10 @@ export const createRenderPdf = (loadResources) => {
     // themeCss (Theme Builder) can pick any bundled family. A name that is not bundled must come with a matching `fonts` entry.
     const fam = (role) => { let v; for (const m of themeCss.matchAll(new RegExp(`--font-${role}:\\s*([^;}]+)`, "g"))) v = m[1]; const f = v?.split(",")[0].trim().replace(/^["']|["']$/g, ""); if (f && !bundledFamilies.includes(f) && !fonts.some((x) => x.name === f)) checkFamily(f, ` (--font-${role} in the theme css)`); return f ?? meta.families[role]; };
     const families = { body: fam("body"), heading: fam("heading") };
+    // the paper: --background of the merged theme css (last declaration wins), painted under everything on every page, margins included.
+    // A literal color only; `backgroundColor` in the options still wins.
+    const literal = (name) => [...themeCss.matchAll(new RegExp(`--${name}:\\s*([^;}]+)`, "g"))].map((m) => m[1].trim()).filter((v) => !/var\(/.test(v)).at(-1);
+    const paper = literal("background"), ink = literal("foreground"); // ink: Takumi ignores `body { color: ... }` (only `:root` styles the root), so the default text color is set from the resolved value
     // ponytail: compiler cached per themeCss string, LRU of 12 (the Theme Builder makes a new string per edit)
     if (!tw.has(themeCss)) { tw.set(themeCss, makeTailwind(res.tailwind, themeCss).catch((e) => { tw.delete(themeCss); throw e; })); if (tw.size > 12) tw.delete(tw.keys().next().value); }
     const twCss = (await tw.get(themeCss))(body, head, foot);
@@ -73,11 +77,11 @@ export const createRenderPdf = (loadResources) => {
     let pdf;
     try {
       pdf = await renderer.render(body, {
-        size: "a4", fontFamilies: [...new Set([families.body, families.heading, "Noto Sans TC"])], ...rest, uncoveredText,
+        size: "a4", ...(paper && { backgroundColor: paper }), fontFamilies: [...new Set([families.body, families.heading, "Noto Sans TC"])], ...rest, uncoveredText,
         // `when`: a face (italic) is only registered when the markup can use it
         fonts: [...[...[...new Set([families.body, families.heading])].flatMap((f) => res.families[f] ?? []), ...res.fonts].filter((f) => !f.when || f.when.test(markup)).map(({ when, ...f }) => f), ...fonts],
         ...(sources.length && { images: { sources } }),
-        css: [twCss, `body{font-family:"${families.body}","Noto Sans TC"}`, ...(css ? [css] : [])],
+        css: [twCss, `body{font-family:"${families.body}","Noto Sans TC"}`, ...(ink ? [`:root{color:${ink}}`] : []), ...(css ? [css] : [])],
         ...(head && { header: head }), ...(foot && { footer: foot }),
       });
     } catch (e) {

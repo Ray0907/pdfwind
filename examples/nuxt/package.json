@@ -1,0 +1,24 @@
+{
+  "name": "pdfwind-nuxt-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "postinstall": "node scripts/sync.mjs && nuxt prepare",
+    "dev": "node scripts/sync.mjs && nuxt dev",
+    "build": "node scripts/sync.mjs && nuxt build",
+    "preview": "node .output/server/index.mjs"
+  },
+  "dependencies": {
+    "@vue/server-renderer": "^3.5.43",
+    "nuxt": "^4.5.2",
+    "qrcode": "^1.5.4",
+    "tailwind-merge": "^3.7.0",
+    "tailwindcss": "^4.3.3",
+    "takumi-pdf": "^0.15.0",
+    "vue": "^3.5.43"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.9"
+  }
+}

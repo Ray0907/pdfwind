@@ -3,9 +3,9 @@
 // agenda: { eventName, date, endDate?, venue, accentColor?, tracks?: [{ name, color }], wifiInfo?, emergencyContact?,
 //           days: [{ label, date, sessions: [{ time, endTime?, title, track?, room?, speaker?, description?, isBreak? }] }] }
 export const eventAgendaSample = {
-  accentColor: "#dc2626", eventName: "Acme Dev Summit 2026", date: "October 20, 2026", endDate: "October 21, 2026", venue: "Springfield Convention Center",
+  accentColor: "destructive", eventName: "Acme Dev Summit 2026", date: "October 20, 2026", endDate: "October 21, 2026", venue: "Springfield Convention Center",
   wifiInfo: "Network: AcmeSummit / Password: summit2026", emergencyContact: "Organizers Desk: +1 555 0100 | help@acme-summit.example",
-  tracks: [{ name: "Core Web", color: "#3b82f6" }, { name: "Ecosystem", color: "#10b981" }, { name: "Workshop", color: "#f59e0b" }],
+  tracks: [{ name: "Core Web", color: "info" }, { name: "Ecosystem", color: "success" }, { name: "Workshop", color: "warning" }],
   days: [
     { label: "Day 1", date: "October 20, 2026", sessions: [
       { time: "8:00 AM", endTime: "9:00 AM", isBreak: true, title: "Registration & Breakfast", description: "Check-in, grab your badge, and enjoy breakfast with peers." },
@@ -36,11 +36,11 @@ export const eventAgendaSample = {
 
 // ticket: { eventName, eventDate, eventTime, venue, address, ticketNumber, ticketType, doorsOpen?, organizer?, seat?: { section, row, number },
 //           terms?, socialLinks?: [{ platform, url }], accentColor?, logoUrl?, qrCodeUrl? }  (QR defaults to the ticket number)
-export const eventTicketSample = { accentColor: "#52525b", organizer: "Acme Events", eventName: "Acme Dev Conf", eventDate: "May 15, 2026", eventTime: "9:00 AM", doorsOpen: "8:00 AM", venue: "Convention Center", address: "123 Main St, Springfield", seat: { section: "A", row: "3", number: "12" }, ticketNumber: "TKT-00142", ticketType: "VIP", terms: "Ticket is non-transferable. All sales final. No re-entry.", socialLinks: [{ platform: "X", url: "x.com/acmeevents" }, { platform: "Instagram", url: "instagram.com/acmeevents" }] };
+export const eventTicketSample = { accentColor: "accent", organizer: "Acme Events", eventName: "Acme Dev Conf", eventDate: "May 15, 2026", eventTime: "9:00 AM", doorsOpen: "8:00 AM", venue: "Convention Center", address: "123 Main St, Springfield", seat: { section: "A", row: "3", number: "12" }, ticketNumber: "TKT-00142", ticketType: "VIP", terms: "Ticket is non-transferable. All sales final. No re-entry.", socialLinks: [{ platform: "X", url: "x.com/acmeevents" }, { platform: "Instagram", url: "instagram.com/acmeevents" }] };
 
 // certificate: { companyName, companyLogo?, amount, currency?, recipientName, senderName, message?, certificateCode, expiryDate,
 //                redemptionInstructions?, terms?, companyContact?, accentColor? }
-export const giftCertificateSample = { accentColor: "#000000", companyName: "Acme Co", amount: 50, currency: "USD", recipientName: "Sarah", senderName: "Mom & Dad", message: "Happy Birthday! Enjoy a coffee on us.", certificateCode: "ACME-GC-2026-00891", expiryDate: "March 31, 2027", redemptionInstructions: "Present this certificate at any Acme Co location.", terms: "No cash value. Non-refundable. One use per visit." };
+export const giftCertificateSample = { accentColor: "primary", companyName: "Acme Co", amount: 50, currency: "USD", recipientName: "Sarah", senderName: "Mom & Dad", message: "Happy Birthday! Enjoy a coffee on us.", certificateCode: "ACME-GC-2026-00891", expiryDate: "March 31, 2027", redemptionInstructions: "Present this certificate at any Acme Co location.", terms: "No cash value. Non-refundable. One use per visit." };
 
 export const eventAgendaPage = { size: "a4", margin: { top: 42.67, right: 42.67, left: 42.67, bottom: "auto" } }; // 32pt
 export const eventTicketPage = { size: { width: 672, height: 336 }, margin: 0 }; // 7in x 3.5in

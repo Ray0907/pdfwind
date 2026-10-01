@@ -13,7 +13,7 @@
 export const themes = {
   default: {
     name: "default",
-    description: "pdfwind's default: pdfcn's minimal palette and spacing with Inter throughout (the look the blocks were matched against).",
+    description: "pdfwind's default: pdfcn's minimal palette and spacing with Inter throughout, and a darker muted-foreground (#71717a, 4.8:1 on white) so captions stay legible in print.",
     pdfcn: { body: "Helvetica", heading: "Helvetica" },
     families: { body: "Inter", heading: "Inter" },
     fonts: [{ family: "Inter", file: "Inter.woff2" }, { family: "Inter", file: "Inter-Italic.woff2", style: "italic" }],
@@ -100,6 +100,15 @@ export const themes = {
     fonts: [{ family: "Nunito", file: "Nunito.woff2" }, { family: "Nunito", file: "Nunito-Italic.woff2", style: "italic" }],
     bodySize: 11, h1: 32,
     page: { margin: { top: 64, right: 58.67, bottom: 64, left: 58.67 } },
+  },
+  dark: {
+    name: "dark",
+    description: "A dark page: light text on a near-black paper (painted into the PDF, margins included), with the default theme's Inter, type scale and gaps. Not a pdfcn theme; every text pair reaches 4.5:1.",
+    pdfcn: { body: "Helvetica", heading: "Helvetica" },
+    families: { body: "Inter", heading: "Inter" },
+    fonts: [{ family: "Inter", file: "Inter.woff2" }, { family: "Inter", file: "Inter-Italic.woff2", style: "italic" }],
+    bodySize: 11, h1: 24,
+    page: { margin: { top: 96, right: 74.67, bottom: 96, left: 74.67 } },
   },
 };
 

@@ -37,9 +37,8 @@
   --primary-foreground: #f0f9ff;
   --success: #059669;
   --warning: #d97706;
-  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  /* blocks pin a muted fill for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
   --block-muted: #f1f5f9;
-  --block-muted-foreground: #475569;
 }
 
 body {

@@ -8,6 +8,7 @@ import { COLOR_FIELDS, RANGES, AA, bundledFamilies, baseState, cloneState, fromC
 import { createStore, loadSaved, HISTORY_LIMIT } from "./builder/store.js";
 import NumberField from "./builder/NumberField.vue";
 import ColorField from "./builder/ColorField.vue";
+import ThemeToggle from "./ThemeToggle.vue";
 
 // ---- base themes: every registry theme as a state, parsed from its CSS file
 const cssFiles = import.meta.glob("../src/themes/*.css", { query: "?raw", import: "default", eager: true });
@@ -148,6 +149,7 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
             </button>
             <button type="button" class="btn" :disabled="!changed" @click="resetAll">Reset all</button>
           </div>
+          <ThemeToggle />
           <p class="status" role="status" aria-live="polite" aria-atomic="true" data-testid="status">{{ status }}</p>
           <p class="meta">{{ store.past.value.length }} of {{ HISTORY_LIMIT }} undo steps<span v-if="!store.storageOk.value"> · storage blocked, not saved</span><span v-else> · saved in this browser</span></p>
         </header>
@@ -273,7 +275,7 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
           <h2 id="h-import">Import</h2>
           <div class="field">
             <label for="import-css" class="field-label">Paste theme CSS</label>
-            <textarea id="import-css" v-model="importText" class="code" rows="6" spellcheck="false" placeholder="@theme { --text-h1: 30pt; } :root { --primary: #0f4c81; }" />
+            <textarea id="import-css" v-model="importText" class="code" rows="6" spellcheck="false" placeholder="@theme { --text-h1: 30pt; } :root { --primary: #rrggbb; }" />
           </div>
           <div class="actions">
             <button type="button" class="btn primary" :disabled="!importText.trim()" @click="applyImport(importText, 'the pasted CSS')">Apply pasted CSS</button>
@@ -304,13 +306,7 @@ const levelWord = { error: "Rejected", warning: "Ignored", note: "Note" };
 </template>
 
 <style>
-.builder { --bg: #f4f4f5; --surface: #ffffff; --fg: #18181b; --fg2: #52525b; --line: #e4e4e7; --line2: #a1a1aa; --btn: #ffffff; --btn-hover: #f4f4f5; --ring: #6d28d9; --accent: #5b21b6; --accent-fg: #ffffff; --ok: #166534; --ok-bg: #dcfce7; --bad: #991b1b; --bad-bg: #fee2e2; --ease: cubic-bezier(0.23, 1, 0.32, 1); --hit: 40px;
-  color-scheme: light dark; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100dvh; }
-@media (prefers-color-scheme: dark) {
-  .builder { --bg: #0b0b0e; --surface: #17171c; --fg: #f4f4f5; --fg2: #b4b4bd; --line: #2a2a31; --line2: #5b5b66; --btn: #1f1f26; --btn-hover: #2a2a33; --ring: #a78bfa; --accent: #c4b5fd; --accent-fg: #1e1b4b; --ok: #86efac; --ok-bg: #14301f; --bad: #fca5a5; --bad-bg: #3b1515; }
-}
-html:has(.builder), body:has(.builder) { background: #f4f4f5; }
-@media (prefers-color-scheme: dark) { html:has(.builder), body:has(.builder) { background: #0b0b0e; } }
+.builder { --hit: 40px; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; min-height: 100dvh; }
 .builder *, .builder *::before, .builder *::after { box-sizing: border-box; }
 .builder h1, .builder h2, .builder h3, .builder p { margin: 0; }
 .builder :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
@@ -403,7 +399,7 @@ html:has(.builder), body:has(.builder) { background: #f4f4f5; }
 .stage-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 16px; }
 @media (min-width: 960px) { .stage-bar { padding-top: 0; } }
 .stage-bar .select { max-width: 360px; }
-.frame { flex: 1; min-height: 70vh; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #ffffff; position: relative; }
+.frame { flex: 1; min-height: 70vh; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); position: relative; }
 .frame > * { position: absolute; inset: 0; }
 @media (prefers-reduced-motion: reduce) { .builder *, .builder *::before, .builder *::after { transition: none !important; } .builder .btn:active, .builder .icon-btn:active { scale: 1 !important; } }
 </style>

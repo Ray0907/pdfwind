@@ -39,4 +39,4 @@ export const smooth = (pts, tension = 0.4) => {
   return d;
 };
 
-export const PALETTE = ["primary", "info", "success", "warning", "destructive", "#8B5CF6", "#F97316", "#14B8A6"];
+export const PALETTE = ["primary", "info", "success", "warning", "destructive", "accent", "muted-foreground", "foreground"];

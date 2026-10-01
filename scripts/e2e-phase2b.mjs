@@ -18,7 +18,7 @@ const f1 = (n) => (Math.round(n * 10) / 10).toString();
 
 const DPI = 144, S = DPI / 72;
 const PAGE_W = 595.28, PAGE_H = 841.89, LEFT = 30, RIGHT = PAGE_W - 30, CENTER = PAGE_W / 2;
-const C = { primary: "#18181b", border: "#e4e4e7", muted: "#fafafa", mutedFg: "#a1a1aa", success: "#15803d", destructive: "#b91c1c", info: "#0369a1", warning: "#a16207", magenta: "#ff00ff", white: "#ffffff" };
+const C = { primary: "#18181b", border: "#e4e4e7", muted: "#fafafa", mutedFg: "#71717a", success: "#15803d", destructive: "#b91c1c", info: "#0369a1", warning: "#a16207", magenta: "#ff00ff", white: "#ffffff" };
 const mix = (fg, alpha) => hex(fg).map((c) => Math.round(255 - (255 - c) * alpha));
 
 const { renderPdf, demos, QR, components, assets, close } = await load();

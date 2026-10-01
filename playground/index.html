@@ -1,3 +1,7 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>pdfwind playground</title>
-<style>html,body,#app{height:100%;margin:0;font:14px system-ui}</style>
-<div id="app"></div><script type="module" src="./main.js"></script></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>pdfwind playground</title>
+<link rel="stylesheet" href="./chrome.css">
+<script>
+  // color scheme choice (system | light | dark), applied before first paint so the page never flashes the wrong scheme; storage may be blocked
+  try { var s = localStorage.getItem("pdfwind-chrome-scheme"); if (s === "light" || s === "dark") document.documentElement.dataset.scheme = s; } catch (e) { /* blocked: follow the system */ }
+</script></head>
+<body><div id="app"></div><script type="module" src="./main.js"></script></body></html>

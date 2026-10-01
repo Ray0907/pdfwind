@@ -84,12 +84,13 @@ onBeforeUnmount(() => { clearTimeout(timer); clearTimeout(fallback); ctrl?.abort
 
 <style scoped>
 .pdf-preview { position: relative; width: 100%; height: 100%; }
-.pdf-preview iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; z-index: 1; }
+.pdf-preview iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--pdfwind-preview-bg, Canvas); z-index: 1; }
 /* the new PDF loads fully painted *behind* the visible one (opacity:0 / display:none make the viewer skip painting, which flashes an empty viewer on swap) */
 .pdf-preview iframe.back { z-index: 0; pointer-events: none; }
-.pdf-preview-skeleton { position: absolute; inset: 0; display: grid; place-items: center; color: #71717a; font: 14px system-ui; background: #f4f4f5; }
-.pdf-preview-bar { position: absolute; inset: 0 0 auto 0; height: 2px; background: #7c3aed; opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; z-index: 2; }
+/* colors: CSS system colors by default (they follow color-scheme); a page can override --pdfwind-preview-bg / -muted / -accent / -error / -error-bg */
+.pdf-preview-skeleton { position: absolute; inset: 0; display: grid; place-items: center; color: var(--pdfwind-preview-muted, GrayText); font: 14px system-ui; background: var(--pdfwind-preview-bg, Canvas); }
+.pdf-preview-bar { position: absolute; inset: 0 0 auto 0; height: 2px; background: var(--pdfwind-preview-accent, Highlight); opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; z-index: 2; }
 .pdf-preview-bar.on { opacity: 1; }
-.pdf-preview-error { position: absolute; z-index: 3; inset: auto 0 0 0; margin: 0; padding: 8px 12px; background: #fee2e2; color: #991b1b; font: 12px/1.4 ui-monospace, monospace; }
+.pdf-preview-error { position: absolute; z-index: 3; inset: auto 0 0 0; margin: 0; padding: 8px 12px; background: var(--pdfwind-preview-error-bg, Canvas); color: var(--pdfwind-preview-error, CanvasText); border-top: 2px solid var(--pdfwind-preview-error, CanvasText); font: 12px/1.4 ui-monospace, monospace; }
 @media (prefers-reduced-motion: reduce) { .pdf-preview-bar { transition: none; } }
 </style>

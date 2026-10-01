@@ -1,4 +1,4 @@
-// Phase 4a E2E: themes + fonts. Matrix of 10 themes (default + pdfcn's 9) x 20 blocks + the "every component" sampler:
+// Phase 4a E2E: themes + fonts. Matrix of 11 themes (default + pdfcn's 9 + dark) x 20 blocks + the "every component" sampler:
 // fonts embedded per theme (pdffonts), theme colors by pixel, heading size ratios, page counts, overlap/clipping, footers/counters,
 // WCAG contrast (reported, never tweaked), CSS values vs pdfcn's theme files, font licences/sizes, then in Chromium: only the active
 // theme's fonts are fetched, switch latency, Node vs Chromium parity, picker keyboard/focus. Writes out/phase4a/ (report.md, PNG contact sheets).
@@ -29,7 +29,8 @@ const B = await blocks();
 const cssVars = (name) => { const s = readFileSync(`src/themes/${name}.css`, "utf8"), v = {}; for (const m of s.matchAll(/--([a-z0-9-]+):\s*([^;]+);/g)) v[m[1]] = m[2].trim(); return v; };
 const pdfcnTheme = (name) => { let s = readFileSync(`${PDCN}/${name}.ts`, "utf8"); s = s.replace(/import[^;]*;/g, "").replace(/export const (\w+): PdfcnTheme =/, "globalThis.__T=").replace(/primitives: defaultPrimitives,/, ""); (0, eval)(s); return globalThis.__T; };
 const kebab = (k) => k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
-const css = Object.fromEntries(themeNames.map((t) => [t, cssVars(t)]));
+const css = Object.fromEntries(themeNames.map((t) => [t, { ...cssVars("default"), ...cssVars(t) }])); // a theme file may set colors only (dark): the rest comes from default.css
+const PDCN_THEMES = themeNames.filter((n) => n !== "default" && n !== "dark"); // the 9 themes ported from pdfcn
 const pt = (v) => parseFloat(v);
 const lum = (h) => { const c = hex(h).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
@@ -37,9 +38,9 @@ const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - 
 // ================= theme files vs pdfcn =================
 await section("themes", async () => {
   const g = "themes";
-  check(g, "registry lists default + the 9 pdfcn themes, each with a CSS file", themeNames.length === 10 && ["blueprint", "corporate", "elegant", "executive", "forest", "minimal", "modern", "professional", "vivid"].every((t) => themeNames.includes(t)) && themeNames.every((t) => existsSync(`src/themes/${t}.css`)), themeNames.join(", "));
+  check(g, "registry lists default + the 9 pdfcn themes + dark, each with a CSS file", themeNames.length === 11 && themeNames.includes("dark") && ["blueprint", "corporate", "elegant", "executive", "forest", "minimal", "modern", "professional", "vivid"].every((t) => themeNames.includes(t)) && themeNames.every((t) => existsSync(`src/themes/${t}.css`)), themeNames.join(", "));
   const bad = [];
-  for (const t of themeNames.filter((n) => n !== "default")) {
+  for (const t of PDCN_THEMES) {
     const p = pdfcnTheme(t), v = css[t];
     for (const [k, val] of Object.entries(p.colors)) if (v[kebab(k)]?.toLowerCase() !== val.toLowerCase()) bad.push(`${t}.${k}`);
     const sp = { paragraph: p.spacing.paragraphGap, component: p.spacing.componentGap, section: p.spacing.sectionGap };
@@ -54,7 +55,7 @@ await section("themes", async () => {
   }
   check(g, "the 9 CSS files equal pdfcn's theme files: 12 colors, 3 gaps, body size + line height, h1-h6 sizes, heading line height, page margins (px = pt x 4/3), font names", !bad.length, bad.length ? bad.slice(0, 10).join(", ") : "9 themes x 31 values identical");
   const sub = { Helvetica: "Inter", "Times-Roman": "Lora", Courier: "Source Code Pro" }, wrong = [];
-  for (const t of themeNames.filter((n) => n !== "default")) for (const k of ["body", "heading"]) { const want = sub[themes[t].pdfcn[k]] ?? themes[t].pdfcn[k]; if (themes[t].families[k] !== want) wrong.push(`${t}.${k}`); }
+  for (const t of PDCN_THEMES) for (const k of ["body", "heading"]) { const want = sub[themes[t].pdfcn[k]] ?? themes[t].pdfcn[k]; if (themes[t].families[k] !== want) wrong.push(`${t}.${k}`); }
   check(g, "documented substitutions hold: Helvetica->Inter, Times-Roman->Lora, Courier->Source Code Pro; Google families unchanged", !wrong.length, wrong.join(", ") || "all 18 roles map as documented");
   const used = [...new Set(themeNames.flatMap((t) => themes[t].fonts.map((f) => f.family)))];
   const missing = used.filter((f) => !existsSync(`fonts/OFL-${f.replace(/ /g, "")}.txt`));
@@ -125,9 +126,9 @@ await section("fonts", async () => {
   check(g, "the sampler (has Headings) embeds each theme's heading family", !hbad.length, themeNames.map((t) => `${t}: ${[...seen[t]].join("+")}`).join(" · "));
   const ib = themeNames.filter((t) => !cells[t]["press-release"].names.some((n) => /Italic/i.test(n)) && t !== "default");
   const inter = cells.default["press-release"].names.some((n) => /Italic/i.test(n));
-  check(g, "italic face embedded when the markup uses italic (press-release quote), in every theme", !ib.length && inter, ib.length ? `no italic in: ${ib.join(", ")}` : "10/10 themes embed an italic face");
+  check(g, "italic face embedded when the markup uses italic (press-release quote), in every theme", !ib.length && inter, ib.length ? `no italic in: ${ib.join(", ")}` : `${themeNames.length}/${themeNames.length} themes embed an italic face`);
   const cjkBad = themeNames.filter((t) => !cells[t]["components-all"].fams.has("NotoSansTC") || !allText(cells[t]["components-all"].file).join("").includes("繁體中文"));
-  check(g, "CJK fallback chain still works in every theme (sampler's 繁體中文 extracted, Noto Sans TC embedded)", !cjkBad.length, cjkBad.join(", ") || "10/10 themes");
+  check(g, "CJK fallback chain still works in every theme (sampler's 繁體中文 extracted, Noto Sans TC embedded)", !cjkBad.length, cjkBad.join(", ") || `${themeNames.length}/${themeNames.length} themes`);
   const noNoto = themeNames.filter((t) => cells[t]["invoice-modern"].fams.has("NotoSansTC"));
   check(g, "Noto Sans TC is not embedded when the text has no CJK (invoice-modern, all themes)", !noNoto.length, noNoto.join(",") || "none embedded");
 });
@@ -148,19 +149,20 @@ await section("colors", async () => {
     n.accent = count(v.accent, { tol: 8 });
     const thin = { primary: 200, muted: 500, border: 30, success: 20, destructive: 20, info: 20, warning: 20, foreground: 20, "muted-foreground": 5, accent: 20 };
     for (const [k, min] of Object.entries(thin)) if (n[k] < min) bad.push(`${t}.${k} ${n[k]}`);
-    const white = colorStats(im1, [255, 255, 255], { tol: 1 }).n / (im1.w * im1.h);
-    if (white < 0.5 || v.background !== "#ffffff") bad.push(`${t} background`);
+    const white = colorStats(im1, hex(v.background), { tol: 1 }).n / (im1.w * im1.h); // the paper is the theme's --background, margins included
+    if (white < 0.5) bad.push(`${t} background`);
     info.push(`${t}: primary ${n.primary}px, muted ${n.muted}, border ${n.border}`);
   }
-  check(g, "each theme's colors appear in its rendered sampler (pixel counts at 144dpi): primary, muted, border, success/destructive/info/warning, accent, foreground (heading ink), muted-foreground (caption ink), white background", !bad.length, bad.slice(0, 6).join(", ") || info.slice(0, 4).join(" | ") + " ...");
-  // blocks pick the theme's muted pair through --block-*: default keeps the pinned pair, named themes use their own
-  // darkest ink pixel (full coverage core of a bold 9pt caption at 288dpi) vs the theme's muted-foreground, RGB distance
-  const mf = (t) => { const c = cells[t]["invoice-modern"], im = raster(c.file, 1, { dpi: 288 }), want = hex(css[t]["muted-foreground"]); const w = words(c.file, 1).find((x) => /^(INVOICE|BILLED|DATE)/i.test(x.t)); if (!w) return 999; let lo = 1e9, pix = [0, 0, 0]; for (let y = Math.floor(w.y0 * 4); y < Math.ceil(w.y1 * 4); y++) for (let x = Math.floor(w.x0 * 4); x < Math.ceil(w.x1 * 4); x++) { const i = (y * im.w + x) * 3, l = im.px[i] + im.px[i + 1] + im.px[i + 2]; if (l < lo) { lo = l; pix = [im.px[i], im.px[i + 1], im.px[i + 2]]; } } return Math.round(Math.hypot(pix[0] - want[0], pix[1] - want[1], pix[2] - want[2])); };
+  check(g, "each theme's colors appear in its rendered sampler (pixel counts at 144dpi): primary, muted, border, success/destructive/info/warning, accent, foreground (heading ink), muted-foreground (caption ink), paper = background", !bad.length, bad.slice(0, 6).join(", ") || info.slice(0, 4).join(" | ") + " ...");
+  // blocks follow the theme's muted-foreground; only the muted fill is handed through --block-muted (default keeps the reference's #f4f4f5)
+  // the ink pixel farthest from the label box's background (works on dark paper too) vs the theme's muted-foreground, RGB distance
+  const mf = (t) => { const c = cells[t]["invoice-modern"], im = raster(c.file, 1, { dpi: 288 }), want = hex(css[t]["muted-foreground"]); const w = words(c.file, 1).find((x) => /^(INVOICE|BILLED|DATE)/i.test(x.t)); if (!w) return 999; const hist = new Map(); for (let y = Math.floor(w.y0 * 4); y < Math.ceil(w.y1 * 4); y++) for (let x = Math.floor(w.x0 * 4); x < Math.ceil(w.x1 * 4); x++) { const i = (y * im.w + x) * 3, key = (im.px[i] << 16) | (im.px[i + 1] << 8) | im.px[i + 2]; hist.set(key, (hist.get(key) ?? 0) + 1); } const m = [...hist.entries()].sort((p, q) => q[1] - p[1])[0][0], bg = [m >> 16, (m >> 8) & 255, m & 255]; let far = 0, pix = bg; for (const key of hist.keys()) { const c3 = [key >> 16, (key >> 8) & 255, key & 255], d = Math.hypot(c3[0] - bg[0], c3[1] - bg[1], c3[2] - bg[2]); if (d > far) { far = d; pix = c3; } } return Math.round(Math.hypot(pix[0] - want[0], pix[1] - want[1], pix[2] - want[2])); };
   const vv = themeNames.filter((t) => t !== "default").map((t) => [t, mf(t)]);
   const wrong = vv.filter(([, n]) => n > 30);
   check(g, "blocks use the named theme's muted-foreground (not the pinned #71717a): label ink in invoice-modern is within RGB distance 30 of the theme color", !wrong.length, vv.map(([t, n]) => `${t} dist ${n}`).join(", ") + " (RGB distance of the darkest label pixel to the theme color)");
   const imd = raster(cells.default["invoice-modern"].file, 1, { dpi: 144 });
-  check(g, "default theme keeps the pinned block muted (#71717a) so phases 3a-3b2 stay matched to the reference", colorStats(imd, hex("#71717a"), { tol: 12 }).n > 100, `${colorStats(imd, hex("#71717a"), { tol: 12 }).n}px of #71717a in default invoice-modern`);
+  const dmf = css.default["muted-foreground"], onW = contrast(dmf, css.default.background), onM = contrast(dmf, css.default.muted);
+  check(g, "default theme's muted-foreground is the accessible #71717a (>= 4.5:1 on its background and on its muted), minimal keeps pdfcn's #a1a1aa; blocks show #71717a in the default theme", dmf === "#71717a" && css.minimal["muted-foreground"] === "#a1a1aa" && onW >= 4.5 && onM >= 4.5 && colorStats(imd, hex("#71717a"), { tol: 12 }).n > 100, `default ${dmf}: ${f2(onW)}:1 on ${css.default.background}, ${f2(onM)}:1 on ${css.default.muted}; ${colorStats(imd, hex("#71717a"), { tol: 12 }).n}px of #71717a in default invoice-modern`);
 });
 
 await section("headings", async () => {
@@ -190,7 +192,7 @@ await section("pages", async () => {
     if (Math.abs(a - d) > 1) over.push(`${t}/${k} ${a} vs ${d}`);
     else if (a !== d) ex.push(`${t}/${k} ${d}->${a}`);
   }
-  check(g, "page counts stay within +-1 of the default theme for all 210 documents", !over.length, over.join(", ") || "all within +-1");
+  check(g, "page counts stay within +-1 of the default theme for all ${themeNames.length * KEYS.length} documents", !over.length, over.join(", ") || "all within +-1");
   check(g, `exceptions of exactly +-1 page (denser type / wider mono / bigger headings), listed for the record`, true, ex.join(", ") || "none", true);
   const fixed = KEYS.filter((k) => /ticket|label|certificate/.test(k)), fb = [];
   for (const t of themeNames) for (const k of fixed) if (cells[t][k].pages !== 1) fb.push(`${t}/${k}`);
@@ -224,12 +226,45 @@ await section("layout", async () => {
     const dtext = allText(cells.default[k].file), hasCounter = dtext.every((x, i) => new RegExp(`Page ${i + 1} of ${dtext.length}`).test(norm(x)));
     if (hasCounter) { const tt = allText(c.file).map(norm); if (!tt.every((x, i) => x.includes(`Page ${i + 1} of ${tt.length}`))) counters.push(`${t}/${k}`); }
   }
-  check(g, "no text outside the page in any of the 210 PDFs", !clipped.length, clipped.slice(0, 5).join(" | ") || "0 words outside");
+  check(g, "no text outside the page in any of the ${themeNames.length * KEYS.length} PDFs", !clipped.length, clipped.slice(0, 5).join(" | ") || "0 words outside");
   const baseline = overlaps.filter((x) => x.startsWith("default/")).map((x) => x.split("/")[1].split(" ")[0]);
   const newO = overlaps.filter((x) => !x.startsWith("default/") && !baseline.includes(x.split("/")[1].split(" ")[0]));
   check(g, "no text drawn over other text (word-box intersection > 35%) in any theme x document", !overlaps.length, overlaps.slice(0, 6).join(" | ") || `0 overlapping words; ${((Date.now() - t0) / 1000).toFixed(0)}s`);
   if (overlaps.length) check(g, "overlaps that are new vs the default theme (vs already present there)", !newO.length, `new: ${newO.slice(0, 6).join(" | ") || "none"}; also in default: ${baseline.join(",") || "none"}`);
-  check(g, "'Page i of N' footers/counters stay correct on every page wherever the default theme has them (N = that theme's page count)", !counters.length, counters.join(", ") || "every counter block, 10 themes");
+  check(g, "'Page i of N' footers/counters stay correct on every page wherever the default theme has them (N = that theme's page count)", !counters.length, counters.join(", ") || "every counter block, all themes");
+});
+
+
+// ================= default-theme text contrast, measured on the rendered pages =================
+await section("default-contrast", async () => {
+  const g = "default-contrast", flagged = {}, worst = [];
+  let words_n = 0;
+  for (const k of KEYS) {
+    const c = cells.default[k]; flagged[k] = 0;
+    for (let p = 1; p <= c.pages; p++) {
+      const im = raster(c.file, p, { dpi: 144 }), ws = words(c.file, p).filter((w) => !(/^[SAMPLE]{1,6}$/.test(w.t) && w.y1 - w.y0 > 20));
+      for (const w of ws) {
+        const x0 = Math.max(0, Math.floor(w.x0 * 2)), x1 = Math.min(im.w, Math.ceil(w.x1 * 2)), y0 = Math.max(0, Math.floor(w.y0 * 2)), y1 = Math.min(im.h, Math.ceil(w.y1 * 2)), hist = new Map();
+        if (x1 - x0 < 2 || y1 - y0 < 2) continue;
+        for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const i = (y * im.w + x) * 3, key = (im.px[i] << 16) | (im.px[i + 1] << 8) | im.px[i + 2]; hist.set(key, (hist.get(key) ?? 0) + 1); }
+        const bg = [...hist.entries()].sort((a, b) => b[1] - a[1])[0][0], bgc = [bg >> 16, (bg >> 8) & 255, bg & 255];
+        let far = 0, ink = bgc; for (const key of hist.keys()) { const c3 = [key >> 16, (key >> 8) & 255, key & 255], d = Math.hypot(c3[0] - bgc[0], c3[1] - bgc[1], c3[2] - bgc[2]); if (d > far) { far = d; ink = c3; } }
+        if (far < 40) continue; // no readable ink in the box
+        const h = (c3) => `#${c3.map((v) => v.toString(16).padStart(2, "0")).join("")}`, ratio = contrast(h(ink), h(bgc));
+        words_n++;
+        if (ratio < 4.5) { flagged[k]++; worst.push({ k, p, t: w.t, ratio, ink: h(ink), bg: h(bgc) }); }
+      }
+    }
+  }
+  worst.sort((a, b) => a.ratio - b.ratio);
+  const total = Object.values(flagged).reduce((a, b) => a + b, 0);
+  check(g, `default theme: ${words_n} words in 21 documents measured (ink = pixel farthest from the box background); words below 4.5:1 listed per document`, true, `${total} below 4.5:1 -> ${Object.entries(flagged).filter(([, n]) => n).map(([k, n]) => `${k} ${n}`).join(", ") || "none"}`, true);
+  const groups = new Map();
+  for (const x of worst) { const key = `${x.k}|${x.ink}|${x.bg}`; const e = groups.get(key) ?? { ...x, n: 0, ex: [] }; e.n++; if (e.ex.length < 3 && !e.ex.includes(x.t)) e.ex.push(x.t); groups.set(key, e); }
+  const gl = [...groups.values()].sort((a, b) => a.ratio - b.ratio || b.n - a.n);
+  check(g, `distinct (document, ink on background) pairs below 4.5:1: ${gl.length}; lowest first, with word counts and examples`, true, gl.map((x) => `${x.k}: ${x.ink} on ${x.bg} ${f2(x.ratio)}:1 x${x.n} (${x.ex.join(", ")})`).join(" | ") || "none", true);
+  const under3 = worst.filter((x) => x.ratio < 3);
+  check(g, `words below 3:1 in the default theme: ${under3.length} (data-driven accent colors in event-agenda track tags, Form placeholders; reported, not changed)`, true, [...new Set(under3.map((x) => `${x.k} "${x.t}" ${f2(x.ratio)}`))].slice(0, 12).join(" | ") || "none", true);
 });
 
 // ================= contact sheets =================
@@ -239,14 +274,14 @@ await section("sheets", async () => {
     const tiles = [];
     for (const t of themeNames) { const base = `${OUT}/tile-${k}-${t}`; raster(cells[t][k].file, 1, { dpi: 50, png: base }); tiles.push(`${base}.png`); }
     const args = []; themeNames.forEach((t, i) => args.push("-label", t, tiles[i]));
-    execFileSync("montage", ["-font", "/System/Library/Fonts/Supplemental/Arial.ttf", ...args, "-tile", "5x2", "-geometry", "+8+8", "-pointsize", "16", "-background", "#e4e4e7", `${OUT}/themes-${k === "components-all" ? "components" : k}.png`]);
+    execFileSync("montage", ["-font", "/System/Library/Fonts/Supplemental/Arial.ttf", ...args, "-tile", "6x2", "-geometry", "+8+8", "-pointsize", "16", "-background", "#e4e4e7", `${OUT}/themes-${k === "components-all" ? "components" : k}.png`]);
     tiles.forEach((f) => rmSync(f));
   }
   const want = ["themes-invoice-modern.png", "themes-report-financial.png", "themes-components.png"];
-  check(g, "contact sheets written: 10 themes side by side for invoice-modern, report-financial and the components sampler", want.every((f) => existsSync(`${OUT}/${f}`) && statSync(`${OUT}/${f}`).size > 20000), want.map((f) => `${OUT}/${f}`).join(", "));
+  check(g, "contact sheets written: all themes side by side for invoice-modern, report-financial and the components sampler", want.every((f) => existsSync(`${OUT}/${f}`) && statSync(`${OUT}/${f}`).size > 20000), want.map((f) => `${OUT}/${f}`).join(", "));
   // every theme's page 1 differs from every other theme's (not a no-op)
   const sums = themeNames.map((t) => sh("sh", ["-c", `pdftoppm -r 20 -f 1 -l 1 -singlefile ${cells[t]["invoice-modern"].file} | md5`]).trim());
-  check(g, "all 10 themes render a visibly different invoice-modern page 1 (10 distinct raster hashes)", new Set(sums).size === 10, `${new Set(sums).size} distinct`);
+  check(g, "all themes render a visibly different invoice-modern page 1 (one distinct raster hash each)", new Set(sums).size === themeNames.length, `${new Set(sums).size} distinct`);
 });
 
 // ================= API (Node) =================
@@ -339,7 +374,7 @@ try {
   const kept = await page.evaluate(() => document.querySelector(".preview").__marker === "same-node" && document.querySelectorAll("iframe").length === 2 && [...document.querySelectorAll("iframe")].every((f) => window.__iframes.includes(f)));
   check("browser", "theme switch re-renders the same <PdfPreview> (no remount: same root node, same two iframes, errors none)", kept && errors.length === 0, `${kept ? "same nodes" : "remounted"}`);
   const grp = page.getByRole("group", { name: "Theme" }), radios = grp.getByRole("radio");
-  check("browser", "picker is a labelled radio group: fieldset 'Theme' with 10 native radios, each with a visible text label", (await radios.count()) === 10 && (await page.locator(".themes label").allTextContents()).map((s) => s.trim()).join() === themeNames.join(), `${await radios.count()} radios: ${(await page.locator(".themes label").allTextContents()).join(", ")}`);
+  check("browser", "picker is a labelled radio group: fieldset 'Theme' with one native radio per theme, each with a visible text label", (await radios.count()) === themeNames.length && (await page.locator(".themes label").allTextContents()).map((s) => s.trim()).join() === themeNames.join(), `${await radios.count()} radios: ${(await page.locator(".themes label").allTextContents()).join(", ")}`);
   await page.evaluate(() => window.__pdfwind.set({ theme: "default" })); await page.waitForTimeout(400);
   await radios.first().focus();
   const k0 = await page.evaluate(() => window.__pdfwind.renders.length);

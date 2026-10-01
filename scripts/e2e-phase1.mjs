@@ -122,7 +122,7 @@ try {
     }).observe(document, { subtree: true, childList: true, attributes: true });
   });
   const t0 = Date.now();
-  await page.goto(url);
+  await page.goto(url + "?demo=invoice");
   await page.waitForFunction(() => window.__pdfwind?.renders.length >= 1, null, { timeout: 60000 });
   const firstMs = Date.now() - t0;
   const settle = (n) => page.waitForFunction((n) => window.__pdfwind.renders.length >= n, n, { timeout: 30000 });
@@ -203,7 +203,7 @@ try {
     const pg = await newPage();
     let noto = 0;
     pg.on("request", (r) => /NotoSansTC\.woff2(?!\?import)/.test(r.url()) && noto++); // real font fetches; Vite dev also serves a tiny ?import JS stub
-    await pg.goto(url + "?lang=en");
+    await pg.goto(url + "?demo=invoice&lang=en");
     await pg.waitForFunction(() => window.__pdfwind?.renders.length >= 1, null, { timeout: 60000 });
     const enNoto = noto;
     const en = text(writeTmp(await pg.evaluate(() => window.__pdfwind.pdfBytes()), "out/browser-en.pdf"));
@@ -219,7 +219,7 @@ try {
     let wasmFail = 1, notoFail = 0;
     await pg.route(/\.wasm(\?|$)/, (r) => (wasmFail-- > 0 ? r.abort() : r.continue()));
     await pg.route(/NotoSansTC/, (r) => (notoFail-- > 0 ? r.abort() : r.continue()));
-    await pg.goto(url + "?lang=en");
+    await pg.goto(url + "?demo=invoice&lang=en");
     await pg.waitForFunction(() => window.__pdfwind?.errors.length >= 1, null, { timeout: 30000 });
     const banner = await pg.locator(".pdf-preview-error").isVisible();
     await pg.evaluate(() => window.__pdfwind.set({ title: "RETRY-1" }));

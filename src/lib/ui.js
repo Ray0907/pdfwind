@@ -24,3 +24,18 @@ export const color = (value) => {
   const key = value?.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
   return TOKENS.includes(key) ? `var(--${key})` : value;
 };
+
+/** A translucent tint of a theme token or CSS color (`pct` percent of it over transparent). */
+export const tint = (value, pct = 10) => `color-mix(in srgb, ${color(value)} ${pct}%, transparent)`;
+
+/** Readable text color on `value` (a theme token or a CSS color). Primary has its own foreground token; the other tokens (status colors, accent)
+ *  take the page background, which stays readable on them in light and dark themes. A user-supplied hex color gets black or white by luminance. */
+export const onColor = (value) => {
+  const key = value?.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+  if (TOKENS.includes(key)) return key === "primary" ? "var(--primary-foreground)" : "var(--background)";
+  const m = /^#?([0-9a-f]{6})$/i.exec(value ?? "");
+  if (!m) return "var(--primary-foreground)";
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16));
+  // token-ok: ink on a color the user supplied must not depend on the theme
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.55 ? "#18181b" : "#ffffff";
+};

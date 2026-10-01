@@ -12,6 +12,9 @@ const OUT = "out/phase3b1", REF = "/tmp/pdfcn-ref";
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(`${OUT}/compare`, { recursive: true });
 
+// the blocks' sample colors are theme tokens now; these are their values in the default theme
+const TOK = { primary: "#18181b", info: "#0369a1", success: "#15803d", warning: "#a16207", destructive: "#b91c1c", accent: "#71717a" };
+const hx = (c) => hex(TOK[c] ?? c);
 const rows = [];
 const check = (group, name, pass, detail = "") => rows.push({ group, name, pass: !!pass, detail: String(detail) });
 const near = (a, b, tol) => Math.abs(a - b) <= tol;
@@ -37,9 +40,9 @@ const has = (txt, list) => list.filter((s) => !txt.includes(norm(s)));
 
 // the block and what must be in it; every block exports its own recommended render options
 const REPORTS = {
-  "report-financial": { Comp: B.ReportFinancial, opts: B.reportFinancialOptions, sample: B.reportFinancialSample, chart: "line", color: "#0F172A", gt: "Revenue" },
-  "report-marketing": { Comp: B.ReportMarketing, opts: B.reportMarketingOptions, sample: B.reportMarketingSample, chart: "bar", color: "#0EA5E9", gt: "Pipeline" },
-  "report-operations": { Comp: B.ReportOperations, opts: B.reportOperationsOptions, sample: B.reportOperationsSample, chart: "hbar", color: "#2563EB", gt: "Throughput" },
+  "report-financial": { Comp: B.ReportFinancial, opts: B.reportFinancialOptions, sample: B.reportFinancialSample, chart: "line", color: "#18181b", gt: "Revenue" },
+  "report-marketing": { Comp: B.ReportMarketing, opts: B.reportMarketingOptions, sample: B.reportMarketingSample, chart: "bar", color: "#15803d", gt: "Pipeline" },
+  "report-operations": { Comp: B.ReportOperations, opts: B.reportOperationsOptions, sample: B.reportOperationsSample, chart: "hbar", color: "#0369a1", gt: "Throughput" },
   "report-security": { Comp: B.ReportSecurity, opts: B.reportSecurityOptions, sample: B.reportSecuritySample, chart: "donut", gt: "Open", gp: 2 },
 };
 const ALL = { ...REPORTS, "event-agenda": { Comp: B.EventAgenda, opts: B.eventAgendaOptions, sample: B.eventAgendaSample }, "event-ticket": { Comp: B.EventTicket, opts: B.eventTicketOptions, sample: B.eventTicketSample }, "gift-certificate": { Comp: B.GiftCertificate, opts: B.giftCertificateOptions, sample: B.giftCertificateSample } };
@@ -102,23 +105,23 @@ for (const [name, b] of Object.entries(REPORTS)) await section(`${name}`, async 
     const r = R(name, pg), bb = boxPx(region); let l = [], rt = [];
     for (let y = bb.y0; y < bb.y1; y++) for (let x = bb.x0; x < bb.x1; x++) { const i = (y * r.w + x) * 3; if (Math.abs(r.px[i] - 15) < 25 && Math.abs(r.px[i + 1] - 23) < 25 && Math.abs(r.px[i + 2] - 42) < 25 && true) (x < (bb.x0 + bb.x1) / 2 ? l : rt).push(y); }
     const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
-    check(g, "line chart: #0F172A smooth line + 12 dots; rising trend (right half sits higher than left)", l.length > 400 && rt.length > 400 && mean(rt) < mean(l) - 3, `dark px ${l.length}/${rt.length}; mean y left ${f1(mean(l) / S)} vs right ${f1(mean(rt) / S)}pt`);
+    check(g, "line chart: primary (#18181b) smooth line + 12 dots; rising trend (right half sits higher than left)", l.length > 400 && rt.length > 400 && mean(rt) < mean(l) - 3, `dark px ${l.length}/${rt.length}; mean y left ${f1(mean(l) / S)} vs right ${f1(mean(rt) / S)}pt`);
   } else if (b.chart === "bar") {
-    const r = R(name, pg), bb = boxPx(region), isBar = (x, y) => { const i = (y * r.w + x) * 3; return Math.abs(r.px[i] - 14) < 14 && Math.abs(r.px[i + 1] - 165) < 14 && Math.abs(r.px[i + 2] - 233) < 14; };
+    const r = R(name, pg), bb = boxPx(region), isBar = (x, y) => { const i = (y * r.w + x) * 3; return Math.abs(r.px[i] - 21) < 14 && Math.abs(r.px[i + 1] - 128) < 14 && Math.abs(r.px[i + 2] - 61) < 14; };
     const countRuns = (y) => { let n = 0, pv = false; for (let x = bb.x0; x < bb.x1; x++) { const on = isBar(x, y); if (on && !pv) n++; pv = on; } return n; };
     let yMid = bb.y1; while (yMid > bb.y0 && countRuns(yMid) < 12) yMid--; yMid -= 4; // lowest row where all 12 bars are cut
     const hts = []; let runs = 0, prev = false;
     for (let x = bb.x0; x < bb.x1; x++) { const on = isBar(x, yMid); if (on && !prev) { runs++; const cx = x + 6; let y0 = yMid, y1 = yMid; while (isBar(cx, y0 - 1)) y0--; while (isBar(cx, y1 + 1)) y1++; hts.push(y1 - y0 + 1); } prev = on; }
-    check(g, "bar chart: 12 bars in #0EA5E9, heights follow the series (55 -> 72)", runs === 12 && hts.at(-1) > hts[0] && near(hts.at(-1) / hts[0], 72 / 55, 0.12), `${runs} bars, first/last height ratio ${(hts.at(-1) / hts[0]).toFixed(2)} (expected ${(72 / 55).toFixed(2)})`);
+    check(g, "bar chart: 12 bars in success (#15803d), heights follow the series (55 -> 72)", runs === 12 && hts.at(-1) > hts[0] && near(hts.at(-1) / hts[0], 72 / 55, 0.12), `${runs} bars, first/last height ratio ${(hts.at(-1) / hts[0]).toFixed(2)} (expected ${(72 / 55).toFixed(2)})`);
   } else if (b.chart === "hbar") {
     const r = R(name, pg), bb = boxPx(region); const lens = []; let inRun = false, startY = 0;
-    const rowLen = (y) => { let a = -1, z = -1; for (let x = bb.x0; x < bb.x1; x++) { const i = (y * r.w + x) * 3; if (Math.abs(r.px[i] - 37) < 14 && Math.abs(r.px[i + 1] - 99) < 14 && Math.abs(r.px[i + 2] - 235) < 14) { if (a < 0) a = x; z = x; } } return a < 0 ? 0 : z - a + 1; };
+    const rowLen = (y) => { let a = -1, z = -1; for (let x = bb.x0; x < bb.x1; x++) { const i = (y * r.w + x) * 3; if (Math.abs(r.px[i] - 3) < 14 && Math.abs(r.px[i + 1] - 105) < 14 && Math.abs(r.px[i + 2] - 161) < 14) { if (a < 0) a = x; z = x; } } return a < 0 ? 0 : z - a + 1; };
     let y = bb.y0; const bars = []; while (y < bb.y1) { const l = rowLen(y); if (l > 20) { let y2 = y, best = l; while (y2 < bb.y1 && rowLen(y2) > 20) y2++; bars.push(rowLen(Math.floor((y + y2) / 2))); y = y2 + 2; } else y++; }
     const want = [66, 77, 85, 91];
-    check(g, "horizontal bars: 4 bars in #2563EB, lengths proportional to 66 / 77 / 85 / 91", bars.length === 4 && bars.every((l, i) => near(l / bars[3], want[i] / 91, 0.05)), `bar lengths ${bars.map((l) => f1(l / S)).join(" / ")}pt`);
+    check(g, "horizontal bars: 4 bars in info (#0369a1), lengths proportional to 66 / 77 / 85 / 91", bars.length === 4 && bars.every((l, i) => near(l / bars[3], want[i] / 91, 0.05)), `bar lengths ${bars.map((l) => f1(l / S)).join(" / ")}pt`);
   } else {
-    const cols = ["#DC2626", "#F59E0B", "#16A34A", "#0EA5E9"], areas = cols.map((c) => stats(name, pg, c, { tol: 8, box: boxPx(region) }).n), tot = areas.reduce((a, b2) => a + b2, 0), want = [14, 17, 8, 4].map((v) => v / 43);
-    check(g, "donut: slice areas in #DC2626 / #F59E0B / #16A34A / #0EA5E9 match 14 / 17 / 8 / 4", areas.every((a, i) => near(a / tot, want[i], 0.03)) && tot > 8000, `shares ${areas.map((a) => (100 * a / tot).toFixed(1)).join(" / ")}% (expected ${want.map((v) => (100 * v).toFixed(1)).join(" / ")})`);
+    const cols = ["#b91c1c", "#a16207", "#15803d", "#0369a1"], areas = cols.map((c) => stats(name, pg, c, { tol: 8, box: boxPx(region) }).n), tot = areas.reduce((a, b2) => a + b2, 0), want = [14, 17, 8, 4].map((v) => v / 43);
+    check(g, "donut: slice areas in destructive / warning / success / info match 14 / 17 / 8 / 4", areas.every((a, i) => near(a / tot, want[i], 0.03)) && tot > 8000, `shares ${areas.map((a) => (100 * a / tot).toFixed(1)).join(" / ")}% (expected ${want.map((v) => (100 * v).toFixed(1)).join(" / ")})`);
   }
   // chart reacts to data
   const flipped = { ...s, series: [...s.series].reverse().map((x, i) => ({ label: s.series[i].label, value: x.value })), ...(name === "report-operations" ? {} : {}) };
@@ -158,10 +161,10 @@ await section("event-agenda-detail", async () => {
   check(g, "parallel sessions of one time slot sit side by side with the same top, one card each", a && c && near(a.y0, c.y0, 1.5) && c.x0 > a.x0 + 100, `Server x ${f1(a?.x0)} / State x ${f1(c?.x0)}, y ${f1(a?.y0)} / ${f1(c?.y0)}`);
   const br = wsx("BREAK", 1).length, brWant = s.days[0].sessions.filter((x) => x.isBreak).length;
   check(g, "breaks are full-width dashed cards with a BREAK badge", br === brWant, `${br} BREAK badges on day 1, ${brWant} break sessions`);
-  const tc = (col, p, tol = 20) => colorStats(R(n, p), hex(col), { tol, box: boxPx({ x0: 0, x1: 595, y0: 150, y1: 760 }) }).n;
-  check(g, "track colors: 3pt left bars in #3b82f6 / #10b981 / #f59e0b on session cards, legend dots", s.tracks.every((t) => tc(t.color, 1) > 100), s.tracks.map((t) => `${t.name} ${tc(t.color, 1)}px`).join(", "));
-  const ac = colorStats(R(n, 1), hex(s.accentColor), { tol: 12, box: boxPx({ x0: 400, x1: 575, y0: 30, y1: 80 }) }).n, sp = wsx("Rivera", 1)[0];
-  check(g, "accentColor #dc2626: AGENDA badge fill and speaker names", ac > 800 && colorStats(R(n, 1), hex(s.accentColor), { tol: 40, box: boxPx({ x0: sp.x0, x1: sp.x1, y0: sp.y0, y1: sp.y1 }) }).n > 20, `badge ${ac}px`);
+  const tc = (col, p, tol = 20) => colorStats(R(n, p), hx(col), { tol, box: boxPx({ x0: 0, x1: 595, y0: 150, y1: 760 }) }).n;
+  check(g, "track colors (info / success / warning tokens): 3pt left bars on session cards, legend dots", s.tracks.every((t) => tc(t.color, 1) > 100), s.tracks.map((t) => `${t.name} ${tc(t.color, 1)}px`).join(", "));
+  const ac = colorStats(R(n, 1), hx(s.accentColor), { tol: 12, box: boxPx({ x0: 400, x1: 575, y0: 30, y1: 80 }) }).n, sp = wsx("Rivera", 1)[0];
+  check(g, "accentColor destructive (token): AGENDA badge fill and speaker names", ac > 800 && colorStats(R(n, 1), hx(s.accentColor), { tol: 40, box: boxPx({ x0: sp.x0, x1: sp.x1, y0: sp.y0, y1: sp.y1 }) }).n > 20, `badge ${ac}px`);
   // overflow: a very long day
   const extra = Array.from({ length: 14 }, (_, i) => ({ time: `${10 + i}:00 PM`, endTime: `${10 + i}:45 PM`, title: `EXTRA-${i + 1} session title`, track: "Core Web", room: "Room A", speaker: "Speaker Name", description: "Extra description text for the overflow day that wraps nicely." }));
   const longData = { ...s, days: [{ ...s.days[0], sessions: [...s.days[0].sessions, ...extra] }, s.days[1]] };
@@ -193,7 +196,7 @@ await section("event-ticket-detail", async () => {
   for (let y = 0; y < chh; y++) for (let x = 0; x < cw; x++) { const i = ((cy0 + y) * q.w + cx0 + x) * 3, o = (y * cw + x) * 4; rgba[o] = q.px[i]; rgba[o + 1] = q.px[i + 1]; rgba[o + 2] = q.px[i + 2]; rgba[o + 3] = 255; }
   const hit = jsQR(rgba, cw, chh);
   check(g, "the QR on the stub decodes (jsQR, 300dpi) to the ticket number", hit && new TextDecoder().decode(Uint8Array.from(hit.binaryData)) === s.ticketNumber, hit ? `decoded "${new TextDecoder().decode(Uint8Array.from(hit.binaryData))}"` : "no decode");
-  const stripe = colorStats(R(n, 1), hex(s.accentColor), { tol: 6, box: boxPx({ x0: 0, x1: 10, y0: 20, y1: 230 }) }), stub = colorStats(R(n, 1), hex(s.accentColor), { tol: 6, box: boxPx({ x0: 392, x1: 500, y0: 20, y1: 230 }) });
+  const stripe = colorStats(R(n, 1), hx(s.accentColor), { tol: 6, box: boxPx({ x0: 0, x1: 10, y0: 20, y1: 230 }) }), stub = colorStats(R(n, 1), hx(s.accentColor), { tol: 6, box: boxPx({ x0: 392, x1: 500, y0: 20, y1: 230 }) });
   check(g, "layout: 8pt accent stripe on the left, 120pt accent stub on the right", near(stripe.x1 / S, 8, 1.2) && stub.n > 30000, `stripe width ${f1(stripe.x1 / S)}pt, stub ${stub.n}px`);
   const r1 = R(n, 1), px = (x, y) => { const i = (Math.round(y * S) * r1.w + Math.round(x * S)) * 3; return [r1.px[i], r1.px[i + 1], r1.px[i + 2]]; };
   const notchTop = px(384, 1), notchBot = px(384, 251), stubMid = px(450, 60), stubTop = px(410, 1), stubBot = px(410, 251);
@@ -228,7 +231,7 @@ await section("gift-certificate-detail", async () => {
   check(g, "accentColor drives the frame, title, amount box and validity date", cw > 4000 && colorStats(R(n, 1), hex(col), { tol: 8 }).n < 100, `${cw} px of ${col} (0 in the default black version)`);
   const r = R(n, 1);
   const frame = (() => { let x = Math.round(66 * S) - 4, run = 0; const y = Math.round(300 * S); for (let i = x; i < x + 40; i++) { const k = (y * r.w + i) * 3; if (r.px[k] < 90) run++; else if (run) break; } return run; })();
-  check(g, "outer frame 3pt (6px) black, inset 66pt from the page edge (matches the reference margins)", near(frame, 6, 1.5) && stats(n, 1, "#000000", { tol: 20, box: boxPx({ x0: 60, x1: 72, y0: 300, y1: 302 }) }).n > 6, `frame ${frame}px thick`);
+  check(g, "outer frame 3pt (6px) in the primary color (#18181b), inset 66pt from the page edge (matches the reference margins)", near(frame, 6, 1.5) && stats(n, 1, "#18181b", { tol: 20, box: boxPx({ x0: 60, x1: 72, y0: 300, y1: 302 }) }).n > 6, `frame ${frame}px thick`);
   const top = Math.round(110 * S), dash = (() => { let runs = 0, prev = false; for (let x = Math.round(90 * S); x < Math.round(500 * S); x++) { let on = false; for (let y = Math.round(78 * S); y < Math.round(90 * S) && !on; y++) { const k = (y * r.w + x) * 3; on = r.px[k] < 120; } if (on && !prev) runs++; prev = on; } return runs; })();
   check(g, "inner border is dashed (all four sides)", dash > 20, `${dash} dashes along the top edge`);
   check(g, "italic message uses the real italic face", /Italic/i.test(fonts(file(n))), "");

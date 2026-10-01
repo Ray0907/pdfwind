@@ -58,7 +58,29 @@ const sampler = () => [
   h(PageFooter, { leftText: "Acme Corp", rightText: "acme.example", marginTop: 8 }), h(PageNumber, { format: "Page {page} of {total}" }),
 ];
 
+
+// The README / first-screen showcase: a realistic two-page report built only from components and theme tokens (no E2E fixtures, no raw colors),
+// so it follows whatever theme it is rendered with (default, vivid, dark, ...).
+const showcaseFooter = { render: () => h(PageFooter, { leftText: "Northwind Analytics · Q3 customer report", marginTop: 0, style: { marginLeft: "42pt", marginRight: "42pt", marginBottom: "18pt" } }, { right: () => h(PageNumber, { format: "Page {page} of {total}", align: "right", size: "xs" }) }) };
+const kpi = (value, label, trend, variant) => el(Card, { variant: "muted", class: "flex-1" }, [el(Text, { variant: "xs", color: "muted-foreground", noMargin: true }, label), el(Heading, { level: 2, noMargin: true, class: "mt-1" }, value), h(Badge, { variant, size: "sm", label: trend, class: "mt-2" })]);
+const showcase = () => [
+  h(PageHeader, { title: "Q3 customer report", subtitle: "Northwind Analytics · prepared for the leadership team", rightText: "September 2026", rightSubText: "Confidential", marginBottom: 14 }),
+  el(Text, {}, "Customer growth stayed healthy through the third quarter: more teams adopted the platform, expansion revenue outpaced churn, and support load per account fell for the second quarter running."),
+  el(Alert, { variant: "info", title: "Retention beat plan" }, "Net revenue retention reached 112% in Q3, four points ahead of plan, driven by seat expansion in mid-market accounts."),
+  h("div", { class: "mt-3 flex flex-row gap-3" }, [kpi("$4.8M", "Annual recurring revenue", "+9.4% QoQ", "success"), kpi("112%", "Net revenue retention", "+4 pts vs plan", "success"), kpi("2.1%", "Logo churn", "-0.3 pts", "info")]),
+  h(Graph, { variant: "bar", title: "New customers per month", subtitle: "July to December, all plans", data: [{ label: "Jul", value: 38 }, { label: "Aug", value: 44 }, { label: "Sep", value: 51 }, { label: "Oct", value: 47 }, { label: "Nov", value: 58 }, { label: "Dec", value: 63 }], height: 150, showValues: true, class: "mt-3" }),
+  el(Heading, { level: 3 }, "What changed this quarter"),
+  h(List, { variant: "bullet", items: [{ text: "Self-serve onboarding cut time to first report from 9 days to 3." }, { text: "The mid-market plan now includes audit exports; 31 accounts upgraded." }, { text: "Two enterprise renewals moved to multi-year terms." }] }),
+  h(PageBreak),
+  el(Heading, { level: 3 }, "Top accounts by ARR"),
+  h(DataTable, { variant: "grid", stripe: true, columns: [{ key: "account", header: "Account" }, { key: "plan", header: "Plan", width: 90 }, { key: "arr", header: "ARR", align: "right", width: 90 }, { key: "status", header: "Status", width: 110, render: (v) => h(Badge, { variant: v === "Renewing" ? "info" : v === "At risk" ? "warning" : "success", size: "sm", label: v }) }], data: [{ account: "Globex Corporation", plan: "Enterprise", arr: "$610,000", status: "Healthy" }, { account: "Initech", plan: "Enterprise", arr: "$420,000", status: "Renewing" }, { account: "Umbrella Logistics", plan: "Mid-market", arr: "$188,000", status: "Healthy" }, { account: "Stark Industries", plan: "Mid-market", arr: "$164,500", status: "At risk" }, { account: "Wayne Foods", plan: "Mid-market", arr: "$131,000", status: "Healthy" }] }),
+  h("div", { class: "mb-4 mt-4 flex flex-row items-start gap-4" }, [h(QRCode, { value: "https://northwind.example/dashboards/q3", size: 84, caption: "Live dashboard" }), h("div", { class: "flex-1" }, [el(Heading, { level: 4, noMargin: true }, "Where to look next"), el(Text, { variant: "xs", color: "muted-foreground" }, "Scan the code for the interactive version of this report, with account-level detail and the churn cohort breakdown.")])]),
+  h(Form, { title: "Renewal approval", subtitle: "Complete before the Initech renewal call", groups: [{ layout: "two-column", fields: [{ label: "Account" }, { label: "Renewal date" }, { label: "Proposed ARR" }, { label: "Discount approved", hint: "percent" }] }] }),
+  h(Signature, { variant: "double", signers: [{ label: "Prepared by", name: "Maya Chen", title: "Head of Customer Success", date: "September 30, 2026" }, { label: "Approved by", name: "Jonas Weber", title: "Chief Operating Officer" }] }),
+];
+
 export const demos = {
+  showcase: { title: "Showcase: customer report", component: { render: () => h("div", showcase()) }, options: { size: "a4", margin: { top: 56, left: 56, right: 56, bottom: "auto" }, footer: showcaseFooter } },
   stack: { title: "Stack", component: page(
     label("gap none | sm | md | lg | xl (vertical)"),
     h("div", { class: "flex flex-row gap-10" }, ["none", "sm", "md", "lg", "xl"].map((g) => el(Stack, { gap: g }, [box(`GV-${g}-A`), box(`GV-${g}-B`)]))),

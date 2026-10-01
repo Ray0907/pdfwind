@@ -15,5 +15,5 @@ defineProps({ data: { type: Object, default: () => reportMarketingSample } });
 </script>
 
 <template>
-  <ReportLayout :data="data" title-prefix="Growth Report" status-label="Growth: Strong" status-tone="success" graph-variant="bar" graph-title="Pipeline build by week" graph-subtitle="Demand creation output trend" :graph-show-values="true" :graph-colors='["#0EA5E9"]' />
+  <ReportLayout :data="data" title-prefix="Growth Report" status-label="Growth: Strong" status-tone="success" graph-variant="bar" graph-title="Pipeline build by week" graph-subtitle="Demand creation output trend" :graph-show-values="true" :graph-colors='["success"]' />
 </template>

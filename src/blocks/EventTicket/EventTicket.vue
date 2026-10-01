@@ -6,7 +6,7 @@ export const renderOptions = { ...eventTicketPage };
 
 <script setup>
 import { computed } from "vue";
-import { cn, rest } from "../../lib/ui.js";
+import { cn, rest, color, onColor } from "../../lib/ui.js";
 import QRCode from "../../components/QRCode/QRCode.vue";
 import PdfImage from "../../components/PdfImage/PdfImage.vue";
 import Mark from "../shared/Mark.vue";
@@ -15,9 +15,9 @@ import { eventTicketSample } from "../event.js";
 defineOptions({ inheritAttrs: false });
 // `data`: pdfcn's EventTicketData. The QR encodes ticketNumber unless `qrCodeUrl` (an image) is given.
 const props = defineProps({ data: { type: Object, default: () => eventTicketSample } });
-const accent = computed(() => props.data.accentColor ?? "var(--primary)");
-// readable ink on the accent color: dark on light accents, white on dark ones (hex accents only)
-const onAccent = computed(() => { const m = /^#?([0-9a-f]{6})$/i.exec(props.data.accentColor ?? ""); if (!m) return "#ffffff"; const [r, g, b] = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16)); return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.55 ? "#18181b" : "#ffffff"; });
+const accent = computed(() => color(props.data.accentColor ?? "primary")); // a theme token name or any CSS color
+// readable ink on the accent color (see onColor)
+const onAccent = computed(() => onColor(props.data.accentColor ?? "primary"));
 const handle = (url) => { const clean = url.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/$/, ""), parts = clean.split("/").filter(Boolean), h = parts.at(-1); return parts.length > 1 && h ? (h.startsWith("@") ? h : `@${h}`) : clean; };
 const label = "mb-[3pt] text-[7pt] font-bold uppercase tracking-[0.5pt] leading-[1.2] text-muted-foreground";
 </script>
@@ -53,8 +53,10 @@ const label = "mb-[3pt] text-[7pt] font-bold uppercase tracking-[0.5pt] leading-
     </div>
     <div class="flex w-[120pt] flex-col items-center justify-between px-3 pb-3.5 pt-4" :style="{ backgroundColor: accent, color: onAccent }">
       <div class="text-[7pt] font-bold uppercase tracking-[0.5pt]">Admit one</div>
-      <div class="rounded-md bg-white p-[5pt]">
+      <!-- token-ok: a QR code needs dark modules on a light plate in every theme -->
+      <div class="rounded-md p-[5pt]" style="background-color: #ffffff">
         <PdfImage v-if="data.qrCodeUrl" :src="data.qrCodeUrl" fit="contain" :width="68" :height="68" />
+        <!-- token-ok: QR colors -->
         <QRCode v-else :value="data.ticketNumber" :size="68" color="#000000" background-color="#ffffff" />
       </div>
       <div class="text-[7pt] font-bold uppercase tracking-[0.5pt]">{{ data.ticketNumber }}</div>
