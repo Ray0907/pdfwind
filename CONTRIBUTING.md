@@ -16,20 +16,40 @@ Scripts fail early if poppler, ImageMagick or the matching Chromium binary is mi
 
 ## Scripts and reports
 
-- `pnpm check`: semantic color-token guard and generated llms staleness.
+- `pnpm check`: semantic color-token guard, offline relative-link/image/heading-anchor checks in README/CONTRIBUTING/SECURITY/CHANGELOG/CODE_OF_CONDUCT, and generated llms staleness.
 - `pnpm test`: sequential **offline/headless** E2Es, final PASS/FAIL/SKIP totals and nonzero exit on any failure. Public-reference comparisons and Nuxt registry installation explicitly SKIP. It still runs all non-network component, block, theme, Builder, playground, documentation and static-build checks.
 - `pnpm test:all`: also permits public pdfcn downloads, the Nuxt install/build/routes/preview checks, and packed consumer installation. Needs npm/pnpm registry access; no headed window.
-- `pnpm e2e:phase1`, `phase2a`, `phase2b`, `phase3a`, `phase3b1`, `phase3b2`, `phase4a`, `phase4b`, `phase5`, `phase5b`: aliases for `scripts/e2e-<phase>.mjs`. `PDFWIND_OFFLINE=1` disables reference downloads/Nuxt installation even when running a phase directly.
-- `pnpm e2e:phase1-headed`: separate native PDF viewer check, opens a window. `PDFWIND_HEADED=1` opts into visible viewer screenshots in phases 4b/5.
-- `pnpm e2e:static`: build + plain static server under `/pdfwind/`, built preview/theme/Builder checks and per-request byte accounting.
-- `pnpm e2e:consumer`: dry/real pack, disposable temp consumer, npm install from the **tarball**, Node + production Vite browser checks. Registry required for Vue/Vite/runtime dependencies; excluded from offline `test`. Set `TMPDIR` to choose the temp parent. Do not keep important files in the script-owned `pdfwind-consumer` temp folder: it is recreated.
 - `pnpm build:playground`: relative-base build in `dist-playground/`.
 - `pnpm screenshots`: rebuild README images from phase3/4/5 outputs; run those E2Es first.
 - `pnpm gen:llms`: regenerate `llms.txt` and `llms-full.txt` after source/API/technical-note changes.
 - `node scripts/fetch-pdfcn-refs.mjs`: idempotent public demos in `.cache/pdfcn-ref/`, bounded timeouts; comparison failures are explicit SKIP, not silent PASS.
 - `node scripts/vendor-pdfcn-themes.mjs <trusted-pdfcn-checkout>`: regenerate values-only theme fixture from read-only upstream files. Preserve MIT attribution and review changed values.
 
-Reports are under `out/` (phase1: `out/report.md`, others: `out/<phase>/report.md`; runner logs/totals: `out/runner/`). Every behavioral change must run the relevant report script; final changes should run `pnpm check` and `pnpm test`. **E2E-only philosophy: no unit tests.** Extend existing scripts with real PDF text, geometry, pixels, font, browser and accessibility evidence. Info/SKIP rows are not passing assertions.
+### E2E coverage
+
+Each command runs `scripts/e2e-<name>.mjs`; reports include PASS/FAIL/SKIP/INFO rows, with PDFs/PNGs in the listed folders where applicable.
+
+| command | coverage | output |
+|---|---|---|
+| `pnpm e2e:phase1` | render core, `<PdfPreview>`, Node + Chromium | `out/report.md`, artifacts in `out/` |
+| `pnpm e2e:phase1-headed` | native PDF viewer painting, replacement/flash sampling and scroll reset; opens a window | `out/report-headed.md`, `out/headed-*.png` |
+| `pnpm e2e:phase2a` | layout/text components, pagination, headers/footers | `out/phase2a/` |
+| `pnpm e2e:phase2b` | Table parts, DataTable, KeyValue, Graph, QRCode, Alert, Badge, Form, Signature, PdfImage | `out/phase2b/` |
+| `pnpm e2e:phase3a` | six invoice blocks, long/CJK data, money, public pdfcn PDF comparisons | `out/phase3a/` |
+| `pnpm e2e:phase3b1` | financial/marketing/operations/security reports, agenda, ticket, gift certificate; pdfcn comparisons | `out/phase3b1/` |
+| `pnpm e2e:phase3b2` | lesson plan, intake form, minutes, packing slip, press release, shipping label, work order; pdfcn comparisons | `out/phase3b2/` |
+| `pnpm e2e:phase4a` | 11 themes × 20 blocks + sampler; fixture values, fonts, colors, headings, contrast, lazy loading, picker | `out/phase4a/` |
+| `pnpm e2e:phase4b` | Theme Builder controls, history, persistence, CSS export/import, contrast, keyboard, axe | `out/phase4b/` |
+| `pnpm e2e:phase5` | token guard, dark paper, playground light/dark + axe, llms examples, Nuxt install/build/routes/preview, README images | `out/phase5/` |
+| `pnpm e2e:phase5b` | responsive playground, landmarks, skip link, hit areas, text sizes, error banner/Retry, light/dark axe | `out/phase5b/` |
+| `pnpm e2e:static` | production build under `/pdfwind/`, preview/themes/Builder, per-request transfer bytes | `out/static/` |
+| `pnpm e2e:consumer` | dry/real pack, isolated tarball install, Node + production Vite preview, CSS/assets/fonts | `out/consumer/` |
+
+`PDFWIND_OFFLINE=1` disables public-reference downloads and Nuxt installation even for direct phase commands; unavailable references are explicit SKIP, not PASS. Phase4a uses an attributed fixture, not an upstream checkout. `PDFWIND_HEADED=1` opts into visible viewer screenshots in phases 4b/5; phase1-headed is always separate.
+
+The consumer needs registry access for Vue/Vite/runtime dependencies and is excluded from offline `test`. Set `TMPDIR` to choose its temp parent; its script-owned `pdfwind-consumer` folder is **recreated**, so never keep important files there.
+
+Runner logs/totals are in `out/runner/`. Every behavioral change must run the relevant script; final changes should run `pnpm check` and `pnpm test`. **E2E-only philosophy: no unit tests.** Extend existing scripts with real PDF text, geometry, pixels, font, browser and accessibility evidence. Info/SKIP rows are not passing assertions.
 
 ## Adding library features
 
