@@ -4,9 +4,10 @@ import PdfPreview from "../src/components/PdfPreview/PdfPreview.vue";
 import { render } from "./render.js";
 import { DemoDoc, DemoHeader, DemoFooter } from "./DemoDoc.js";
 import { demos } from "./demos.js";
+import { themes, themeNames } from "../src/themes/index.js";
 
 const param = new URLSearchParams(location.search);
-const state = reactive({ demo: param.get("demo") ?? "invoice", title: "Invoice 1042", rows: 8, lang: param.get("lang") ?? "zh" });
+const state = reactive({ demo: param.get("demo") ?? "invoice", title: "Invoice 1042", rows: 8, lang: param.get("lang") ?? "zh", theme: themeNames.includes(param.get("theme")) ? param.get("theme") : "default" });
 const log = reactive([]); // one entry per finished render
 const errors = reactive([]);
 const delay = ref(0); // test seam, see e2e-hook.js
@@ -16,8 +17,8 @@ const visible = Object.fromEntries(Object.entries(demos).filter(([, d]) => !d.hi
 const groups = ["Components", "Blocks"].map((name) => ({ name, items: Object.entries(visible).filter(([, d]) => (d.group ?? "Components") === name) }));
 // "invoice" is the phase 1 sample document; every other entry is a component demo from demos.js
 const current = computed(() => state.demo === "invoice"
-  ? { component: DemoDoc, props: state, options: { header: DemoHeader, footer: DemoFooter } }
-  : { component: demos[state.demo].component, props: {}, options: { margin: 40, ...demos[state.demo].options } });
+  ? { component: DemoDoc, props: state, options: { header: DemoHeader, footer: DemoFooter, theme: state.theme } }
+  : { component: demos[state.demo].component, props: {}, options: { margin: 40, ...demos[state.demo].options, theme: state.theme } });
 
 const onRendered = (r) => log.push({ id: r.id, ms: r.ms, url: r.url, bytes: r.pdf.length, demo: state.demo, at: performance.now() });
 defineExpose({ state, log, errors, delay });
@@ -27,6 +28,10 @@ defineExpose({ state, log, errors, delay });
   <div class="shell">
     <nav aria-label="Components">
       <h1>pdfwind</h1>
+      <fieldset class="themes">
+        <legend>Theme</legend>
+        <label v-for="t in themeNames" :key="t" :title="themes[t].description"><input type="radio" name="theme" :value="t" v-model="state.theme" />{{ t }}</label>
+      </fieldset>
       <button :class="{ on: state.demo === 'invoice' }" @click="state.demo = 'invoice'">Sample invoice</button>
       <template v-for="grp in groups" :key="grp.name">
         <h2>{{ grp.name }}</h2>
@@ -49,6 +54,10 @@ defineExpose({ state, log, errors, delay });
 .shell nav { grid-row: 1 / 3; display: flex; flex-direction: column; gap: 2px; padding: 12px; border-right: 1px solid #e4e4e7; overflow-y: auto; }
 .shell nav h1 { font-size: 15px; margin: 0 0 8px; }
 .shell nav h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #71717a; margin: 12px 0 4px; }
+.themes { border: 1px solid #e4e4e7; border-radius: 6px; margin: 0 0 8px; padding: 4px 8px 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; }
+.themes legend { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #71717a; padding: 0 4px; }
+.themes label { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 0; }
+.themes input:focus-visible, .shell nav button:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }
 .shell nav button { text-align: left; font: inherit; padding: 6px 8px; border: 0; border-radius: 6px; background: none; cursor: pointer; transition: background-color 120ms ease-out; }
 .shell nav button:hover { background: #f4f4f5; }
 .shell nav button.on { background: #e4e4e7; font-weight: 600; }

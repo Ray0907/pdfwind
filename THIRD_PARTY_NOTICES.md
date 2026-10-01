@@ -68,6 +68,6 @@ SOFTWARE.
 
 Runtime: `vue`, `@vue/server-renderer`, `tailwindcss`, `tailwind-merge`, `qrcode` (MIT); `takumi-pdf` (MIT OR Apache-2.0).
 Dev only: `vite`, `@vitejs/plugin-vue`, `playwright-core`, `jsqr` (their own licences; not shipped).
-Fonts in `fonts/`: Inter and Noto Sans TC (`.woff2` converted from the upstream Google Fonts files), both under the SIL Open Font License 1.1. Full texts: `fonts/OFL-Inter.txt`, `fonts/OFL-NotoSansTC.txt`.
+Fonts in `fonts/` (all under the SIL Open Font License 1.1, full texts in `fonts/OFL-<Family>.txt`): Inter and Noto Sans TC (`.woff2` converted from the upstream Google Fonts files), and the theme fonts Nunito, Merriweather, Lato, Playfair Display, Open Sans, Lora, Source Code Pro and JetBrains Mono (latin-subset `.woff2` copied unmodified from the fontsource packages `@fontsource-variable/*` and `@fontsource/lato`, which redistribute the Google Fonts releases). Copyright holders are named in each licence file (Nunito Project Authors; Merriweather Project Authors; tyPoland Lukasz Dziedzic for Lato; The Playfair Display, Open Sans, Lora, Source Code Pro (Adobe) and JetBrains Mono (JetBrains) Project Authors). The Reserved Font Names are kept: the files are unmodified subsets, not derivative fonts.
 The `pdftotext` / `pdftoppm` tools (poppler) used by the E2E scripts are external programs and are not distributed.
 The reference PDFs in `/tmp/pdfcn-ref` used for visual comparison come from pdfcn's public demo and are not part of this repository.

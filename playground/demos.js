@@ -32,6 +32,32 @@ const blockDemo = (title, Comp, data, Footer = InvoiceFooter, extra = {}) => ({ 
 const optsDemo = (title, Comp, data, o) => ({ title, group: "Blocks", component: { render: () => h(Comp, { data }) }, options: { ...o, ...(o.footer && { footer: { render: () => h(o.footer, { data }) } }) } });
 const manyItems = (n) => Array.from({ length: n }, (_, i) => ({ description: `Line item ${i + 1}`, quantity: (i % 4) + 1, unitPrice: 100 + i * 7.5 }));
 
+// one small instance of every component, for looking at a theme (Theme picker) and for the theme E2E contact sheet
+const sampler = () => [
+  h(Watermark, { text: "SAMPLE" }),
+  h(PageHeader, { title: "Acme Corp", subtitle: "Theme sampler", rightText: "March 2026", rightSubText: "Every component", marginBottom: 10 }),
+  el(Heading, { level: 1 }, "Heading one"), el(Heading, { level: 2 }, "Heading two"), el(Heading, { level: 3 }, "Heading three"),
+  el(Heading, { level: 4 }, "Heading four"), el(Heading, { level: 5 }, "Heading five"), el(Heading, { level: 6 }, "Heading six"),
+  el(Text, {}, ["Body text with a ", h(Link, { href: "https://example.com" }, { default: () => "link" }), ", numbers 0123456789 and CJK 繁體中文。"]),
+  el(Text, { variant: "xs", color: "muted-foreground" }, "Muted caption text (muted-foreground)"),
+  h(Divider),
+  h(Stack, { direction: "horizontal", gap: "sm", wrap: true }, () => ["default", "primary", "success", "warning", "destructive", "info", "outline"].map((v) => h(Badge, { variant: v, label: v }))),
+  ...["info", "success", "warning", "error"].map((v) => el(Alert, { variant: v, title: `${v} alert` }, "Alert body text.")),
+  el(Card, { title: "Card title" }, "Card body text."), el(Card, { title: "Muted card", variant: "muted" }, "Card on the muted background."),
+  el(Section, { variant: "callout" }, el(Text, { noMargin: true }, "Callout section")), el(Section, { variant: "highlight" }, el(Text, { noMargin: true }, "Highlight section")),
+  h(List, { variant: "bullet", items: [{ text: "Bullet one" }, { text: "Bullet two" }] }), h(List, { variant: "checklist", items: [{ text: "Done", checked: true }, { text: "Open", checked: false }] }),
+  h(KeyValue, { items: [{ key: "Invoice", value: "INV-1042" }, { key: "Total", value: "$1,525.00" }] }),
+  h(PageBreak),
+  h(Table, { variant: "grid", zebraStripe: true }, () => [el(TableHeader, {}, el(TableRow, {}, [el(TableCell, {}, "Item"), el(TableCell, { align: "right" }, "Amount")])), el(TableBody, {}, [["Design", "$900"], ["Build", "$2,400"], ["Review", "$300"]].map(([a, b]) => el(TableRow, {}, [el(TableCell, {}, a), el(TableCell, { align: "right" }, b)]))), el(TableFooter, {}, el(TableRow, {}, [el(TableCell, {}, "Total"), el(TableCell, { align: "right" }, "$3,600")]))]),
+  h(DataTable, { variant: "grid", stripe: true, columns: [{ key: "sku", header: "SKU", width: 80 }, { key: "name", header: "Name" }, { key: "amount", header: "Amount", align: "right", width: 100 }], data: [{ sku: "A1", name: "Widget", amount: "$100" }, { sku: "B2", name: "Gadget", amount: "$425" }] }),
+  h(Graph, { variant: "bar", title: "Bar chart", data: gData, height: 130, showValues: true }),
+  h(Graph, { variant: "donut", title: "Donut chart", data: gData, height: 130 }),
+  h("div", { class: "flex flex-row items-start gap-6" }, [h(QRCode, { value: "https://pdfwind.dev", size: 80, caption: "QR code" }), h(PdfImage, { src: TEST_PNG, variant: "thumbnail", caption: "Image" })]),
+  h(Form, { title: "Form", groups: [{ title: "Applicant", layout: "two-column", fields: [{ label: "Full name" }, { label: "Email", hint: "hint" }] }] }),
+  h(Signature, { variant: "double", signers: [{ label: "Authorized by", name: "Alex Kim", title: "CEO" }, { label: "Approved by", name: "Sam Patel", title: "CFO" }] }),
+  h(PageFooter, { leftText: "Acme Corp", rightText: "acme.example", marginTop: 8 }), h(PageNumber, { format: "Page {page} of {total}" }),
+];
+
 export const demos = {
   stack: { title: "Stack", component: page(
     label("gap none | sm | md | lg | xl (vertical)"),
@@ -373,6 +399,8 @@ export const demos = {
   }).map(([k, make]) => [`tall-${k}`, { title: `tall ${k}`, hidden: true, component: page(el(Text, {}, "TALL-BEFORE"), make, el(Text, {}, "TALL-AFTER")) }])),
 
   // ---------------- phase 3a: invoice blocks ----------------
+  "components-all": { title: "Theme sampler (every component)", component: { render: () => h("div", sampler()) }, options: {} },
+
   "invoice-classic": blockDemo("Invoice: classic", InvoiceClassic, invoiceClassicSample),
   "invoice-consultant": blockDemo("Invoice: consultant", InvoiceConsultant, invoiceConsultantSample),
   "invoice-corporate": blockDemo("Invoice: corporate", InvoiceCorporate, invoiceCorporateSample),

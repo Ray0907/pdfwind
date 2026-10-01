@@ -1,0 +1,48 @@
+/* pdfwind theme "minimal": pdfcn's `minimal` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Helvetica 11pt / 1.65, headings Courier (rendered with Source Code Pro) 600. Body Helvetica is rendered with Inter.
+   Courier headings, zinc neutrals, maximum whitespace. shadcn-inspired restrained palette. Ideal for clean documentation, technical specs, and literary manuscripts. */
+@theme {
+  --spacing-paragraph: 14pt;
+  --spacing-component: 18pt;
+  --spacing-section: 36pt;
+  --text-xs--line-height: 1.65;
+  --text-sm--line-height: 1.65;
+  --text-base--line-height: 1.65;
+  --text-lg--line-height: 1.65;
+  --text-xl--line-height: 1.65;
+  --text-2xl--line-height: 1.65;
+  --text-3xl--line-height: 1.65;
+  --text-body: 11pt;
+  --text-h1: 24pt;
+  --text-h2: 20pt;
+  --text-h3: 16pt;
+  --text-h4: 14pt;
+  --text-h5: 12pt;
+  --text-h6: 10pt;
+  --leading-body: 1.65;
+  --leading-heading: 1.25;
+  --font-heading: "Source Code Pro", "Noto Sans TC";
+}
+
+:root {
+  --accent: #71717a;
+  --background: #ffffff;
+  --border: #e4e4e7;
+  --destructive: #b91c1c;
+  --foreground: #18181b;
+  --info: #0369a1;
+  --muted: #fafafa;
+  --muted-foreground: #a1a1aa;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --success: #15803d;
+  --warning: #a16207;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #fafafa;
+  --block-muted-foreground: #a1a1aa;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.65;
+}

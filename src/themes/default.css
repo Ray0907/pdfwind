@@ -42,6 +42,7 @@
 
   --leading-body: 1.65;
   --leading-heading: 1.25;
+  --font-heading: "Inter", "Noto Sans TC";
 
   --radius-sm: 2pt;
   --radius-md: 4pt;

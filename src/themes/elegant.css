@@ -1,0 +1,48 @@
+/* pdfwind theme "elegant": pdfcn's `elegant` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Lora 11pt / 1.7, headings Playfair Display 700.
+   Warm cream-adjacent whites, amber/gold accent, Playfair Display headings paired with Lora body — a classic editorial combination. Ideal for design portfolios, luxury brands, and high-end editorial PDFs. */
+@theme {
+  --spacing-paragraph: 12pt;
+  --spacing-component: 16pt;
+  --spacing-section: 30pt;
+  --text-xs--line-height: 1.7;
+  --text-sm--line-height: 1.7;
+  --text-base--line-height: 1.7;
+  --text-lg--line-height: 1.7;
+  --text-xl--line-height: 1.7;
+  --text-2xl--line-height: 1.7;
+  --text-3xl--line-height: 1.7;
+  --text-body: 11pt;
+  --text-h1: 36pt;
+  --text-h2: 26pt;
+  --text-h3: 20pt;
+  --text-h4: 16pt;
+  --text-h5: 14pt;
+  --text-h6: 12pt;
+  --leading-body: 1.7;
+  --leading-heading: 1.2;
+  --font-heading: "Playfair Display", "Noto Sans TC";
+}
+
+:root {
+  --accent: #b45309;
+  --background: #ffffff;
+  --border: #d6d3d1;
+  --destructive: #dc2626;
+  --foreground: #1c1917;
+  --info: #0ea5e9;
+  --muted: #fafaf9;
+  --muted-foreground: #78716c;
+  --primary: #78350f;
+  --primary-foreground: #fffbeb;
+  --success: #16a34a;
+  --warning: #d97706;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #fafaf9;
+  --block-muted-foreground: #78716c;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.7;
+}

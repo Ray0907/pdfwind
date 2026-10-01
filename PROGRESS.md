@@ -242,3 +242,46 @@ Mutation checks run by hand (not left in the repo): QR value forced to "WRONG" -
 9. Medical form: footer address wraps to a 2nd line in both (same as reference).
 
 **Known gaps**: letter-spaced caps kept <= 0.07em for text extraction; medical form/lesson plan break explicitly (PageBreak) so very long custom content on a page would overflow onto extra pages rather than re-flow to the same 2-page layout.
+
+## Phase 4a: themes + fonts
+
+**Built**
+- `src/themes/<name>.css` for pdfcn's 9 themes (blueprint corporate elegant executive forest minimal modern professional vivid), generated from pdfcn's theme files and then checked against them by the E2E (12 colors, paragraph/component/section gaps, body size + line height, h1-h6 sizes, heading line height, page margins, font names: 9 x 31 values identical). Variables only, our semantic token names; the extensions are `--font-heading` (Heading uses `font-heading`) and `--block-muted` / `--block-muted-foreground` (see below). `default.css` stays the default.
+- `src/themes/index.js`: per-theme meta `{ name, description, pdfcn fonts, families (rendered), fonts (files, weight, style), bodySize, h1, page.margin (CSS px) }`, `themeNames`, `getTheme(name)` (unknown -> `Unknown theme "x". Valid themes: default, blueprint, ...`).
+- `renderPdf(Comp, props, { theme })` (Node + browser, shared `core.js`); `<PdfPreview :options="{ theme }">` re-renders in place (same node, same two iframes). `themeCss` still layers on top (default -> named theme -> your css). `src/render/themes.js` builds lazy per-theme loaders; the browser entry imports each theme's CSS as a lazy chunk and fonts as URLs only.
+- Fonts (`fonts/*.woff2`, latin subset, copied unmodified from fontsource; variable except Lato 400/700): Nunito 39K+italic 42K, Merriweather 98K, Lato 24+23K+italic 24K, Playfair Display 38K, Open Sans 48K+italic 50K, Lora 38K+italic 41K, Source Code Pro 22K+italic 22K, JetBrains Mono 40K. Italic only for body families and only registered when the markup uses italics. OFL texts in `fonts/OFL-<Family>.txt`, credited in THIRD_PARTY_NOTICES.md. No TTFs added.
+- Substitutions (documented in `src/themes/index.js`): pdfcn's own preview leaves the base-14 names to the PDF viewer's built-in fonts and loads only the Google families from fontsource. Takumi has none, so Helvetica -> Inter, Times-Roman -> Lora, Courier -> Source Code Pro. Affects: minimal (body Helvetica->Inter, headings Courier->Source Code Pro), modern (all Inter), professional (Inter body, Lora headings). Nunito, Merriweather, Lato, Playfair Display, Open Sans, Lora, Source Code Pro, JetBrains Mono, Inter are the real families.
+- Playground: theme picker (fieldset "Theme", 10 native radios, labelled, arrow keys, visible focus ring, `?theme=` deep link) re-renders the current demo; new demo "Theme sampler (every component)".
+
+**Run**
+```
+node scripts/e2e-phase4a.mjs     # out/phase4a/report.md, pdf/<theme>/<doc>.pdf, themes-invoice-modern.png, themes-report-financial.png, themes-components.png
+```
+
+**Result: see the totals pasted in the phase 4a report** (49 checks + 4 info rows when this section was written). Matrix: 10 themes x (20 blocks + sampler) = 210 PDFs.
+- Fonts per theme (pdffonts) match the theme meta in all 210; no Inter or other-theme face leaks; heading family present in the sampler; italic embedded for the press-release quote in all 10; CJK fallback and "Noto only when CJK" hold.
+- Colors: each theme's primary/muted/border/status/accent/foreground/muted-foreground appear in the rendered sampler (pixel counts); white background.
+- Heading ink-height ratios match the h1-h6 sizes of every theme.
+- Page counts within +-1 of default for all 210. Exceptions (+1, blueprint's wider 10pt mono): medical-intake-form 2->3, press-release 1->2, work-order 1->2. Ticket/label/certificate stay 1 page; page sizes unchanged.
+- No text outside the page, no text drawn over text (sampler's watermark letters excluded), "Page i of N" correct on every page wherever default has it.
+- Browser: switching to vivid fetched only `Nunito.woff2`; to executive only `OpenSans.woff2` + `Merriweather.woff2`; files of never-selected themes never requested; no Noto request until CJK text. Switch latency (render ms, median of 5): 39 ms cold-ish, 30 ms warm; the wall time is ~2.1 s per switch because headless Chromium never fires the PDF viewer's `load`, so PdfPreview's 2 s fallback swap runs (existing behaviour, not caused by themes). Node vs Chromium parity (text, pages, font families) for vivid/elegant/blueprint x invoice-modern/report-financial/sampler: 9/9.
+- Mutation checks by hand (reverted): vivid `--primary` changed one digit -> the pdfcn-equality check fails; Nunito mapped to Lora.woff2 and Noto filter removed in core -> fonts checks + concurrent-isolation check fail (4 checks).
+
+**Contrast (reported, not tweaked): pdfcn's own values**
+- Below 4.5:1 for body-size text: `minimal` and the default theme muted-foreground `#a1a1aa` on white 2.56:1 (on muted 2.46); `executive` and `modern` muted-foreground on muted 4.34:1; `professional` on muted 4.40:1.
+- Fine: foreground/background 9.1-17.9 everywhere; primary-foreground/primary 5.02 (forest) to 17.7; `corporate`, `elegant`, `forest`, `vivid`, `blueprint` muted-foreground/background 4.76-7.58.
+- Blocks drawn with muted-foreground at 9-10pt (labels) therefore fail AA in `minimal`. The default theme is not affected in blocks, see next point.
+
+**Block muted pair**: since 3a the blocks pin `--muted: #f4f4f5` / `--muted-foreground: #71717a` (the pdfcn reference PDFs were rendered with a darker pair; those are `professional`'s values). That pin overrode every theme. Now blocks take `var(--block-muted-foreground, #71717a)`: the default theme keeps the pinned pair (so phases 3a-3b2 stay matched to the reference), a named theme defines `--block-*` with its own colors (literal values: Takumi does not resolve `--a: var(--b)` chains where `--b` is redefined further down). Consequence: `theme: "minimal"` shows pdfcn's light `#a1a1aa` in blocks, `theme: "default"` shows `#71717a`.
+
+**Where themes deviate from pdfcn and why**
+1. Fonts: Helvetica/Times-Roman/Courier replaced as above (Takumi has no built-in fonts). The Google families are the real ones, latin subset (no latin-ext: not needed for the sample data; accents in Latin-1 are covered).
+2. `minimal`: pdfcn's heading font is Courier, rendered with Source Code Pro; the default theme (= minimal's palette/spacing) keeps Inter headings because the blocks were matched against that look. So `default` and `minimal` differ in heading font and in the block muted pair.
+3. Heading weight: pdfcn's Heading always uses bold (the theme's `fontWeight` 600 for minimal/modern is not used by its Heading), same here.
+4. Page margins: kept as meta (`page.margin`, CSS px), not applied automatically; blocks keep their own `renderOptions` margins (as in pdfcn, where blocks pad themselves with `theme.spacing.page`; ours use block-specific values matched to the reference render).
+5. Block accent colors that come from data (`accentColor`) or are fixed in a block (e.g. report status colors, certificate gold) are not themed, same as pdfcn.
+6. Italic: heading-only families (Merriweather, Playfair Display, JetBrains Mono) have no italic face, so italic headings are slanted by the engine.
+7. Blueprint (10pt mono, line-height 1.75) is the widest theme: three blocks grow one page (above).
+8. Not done on purpose: latin-ext subsets, a Theme Builder (4b), automatic page-margin application.
+
+**Known gaps**: font payload is 80-190 KB for the Google-family themes but 720-815 KB when Inter is involved (default, forest, minimal, modern, professional: Inter 350K + Inter Italic 385K were already bundled in earlier phases; subsetting them is future work). Only the E2E-measured combinations are guaranteed; custom `themeCss` that changes `font-family` needs its own font passed in `fonts`.

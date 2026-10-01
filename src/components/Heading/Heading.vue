@@ -31,7 +31,7 @@ const aligns = { left: "text-left", center: "text-center", right: "text-right" }
 </script>
 
 <template>
-  <component :is="`h${level}`" v-bind="rest($attrs)" :class="cn('leading-heading text-foreground', levels[level], weights[weight], trackings[tracking], transforms[transform], aligns[align], noMargin && 'my-0', $attrs.class)" :style="[$attrs.style, props.color && { color: color(props.color) }]">
+  <component :is="`h${level}`" v-bind="rest($attrs)" :class="cn('font-heading leading-heading text-foreground', levels[level], weights[weight], trackings[tracking], transforms[transform], aligns[align], noMargin && 'my-0', $attrs.class)" :style="[$attrs.style, props.color && { color: color(props.color) }]">
     <slot />
   </component>
 </template>

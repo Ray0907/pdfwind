@@ -1,0 +1,48 @@
+/* pdfwind theme "vivid": pdfcn's `vivid` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Nunito 11pt / 1.6, headings Nunito 700.
+   Deep violet/purple palette, Nunito rounded sans-serif, playful but still professional. High-energy creative accent. Ideal for creative agencies, startups, marketing decks, and pitch docs. */
+@theme {
+  --spacing-paragraph: 10pt;
+  --spacing-component: 14pt;
+  --spacing-section: 26pt;
+  --text-xs--line-height: 1.6;
+  --text-sm--line-height: 1.6;
+  --text-base--line-height: 1.6;
+  --text-lg--line-height: 1.6;
+  --text-xl--line-height: 1.6;
+  --text-2xl--line-height: 1.6;
+  --text-3xl--line-height: 1.6;
+  --text-body: 11pt;
+  --text-h1: 32pt;
+  --text-h2: 24pt;
+  --text-h3: 19pt;
+  --text-h4: 16pt;
+  --text-h5: 14pt;
+  --text-h6: 12pt;
+  --leading-body: 1.6;
+  --leading-heading: 1.2;
+  --font-heading: "Nunito", "Noto Sans TC";
+}
+
+:root {
+  --accent: #8b5cf6;
+  --background: #ffffff;
+  --border: #ddd6fe;
+  --destructive: #dc2626;
+  --foreground: #1e1b4b;
+  --info: #0ea5e9;
+  --muted: #f5f3ff;
+  --muted-foreground: #7c3aed;
+  --primary: #6d28d9;
+  --primary-foreground: #ffffff;
+  --success: #16a34a;
+  --warning: #d97706;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #f5f3ff;
+  --block-muted-foreground: #7c3aed;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.6;
+}

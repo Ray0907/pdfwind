@@ -1,0 +1,48 @@
+/* pdfwind theme "corporate": pdfcn's `corporate` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Lato 11pt / 1.55, headings Lato 700.
+   Blue-gray palette, Lato sans-serif throughout, structured and dependable. Sky-blue accent adds clarity without distraction. Ideal for business proposals, project plans, and client-facing reports. */
+@theme {
+  --spacing-paragraph: 9pt;
+  --spacing-component: 13pt;
+  --spacing-section: 24pt;
+  --text-xs--line-height: 1.55;
+  --text-sm--line-height: 1.55;
+  --text-base--line-height: 1.55;
+  --text-lg--line-height: 1.55;
+  --text-xl--line-height: 1.55;
+  --text-2xl--line-height: 1.55;
+  --text-3xl--line-height: 1.55;
+  --text-body: 11pt;
+  --text-h1: 30pt;
+  --text-h2: 22pt;
+  --text-h3: 18pt;
+  --text-h4: 15pt;
+  --text-h5: 13pt;
+  --text-h6: 11pt;
+  --leading-body: 1.55;
+  --leading-heading: 1.2;
+  --font-heading: "Lato", "Noto Sans TC";
+}
+
+:root {
+  --accent: #0ea5e9;
+  --background: #ffffff;
+  --border: #e2e8f0;
+  --destructive: #ef4444;
+  --foreground: #1e293b;
+  --info: #3b82f6;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --primary: #0f4c81;
+  --primary-foreground: #ffffff;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #f8fafc;
+  --block-muted-foreground: #64748b;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.55;
+}

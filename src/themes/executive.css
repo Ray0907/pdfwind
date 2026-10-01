@@ -1,0 +1,48 @@
+/* pdfwind theme "executive": pdfcn's `executive` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Open Sans 11pt / 1.65, headings Merriweather 700.
+   Deep navy palette, Merriweather serif headings, Open Sans body. Generous margins, high contrast, premium boardroom aesthetic. Ideal for board reports, executive briefs, and investor documents. */
+@theme {
+  --spacing-paragraph: 10pt;
+  --spacing-component: 16pt;
+  --spacing-section: 32pt;
+  --text-xs--line-height: 1.65;
+  --text-sm--line-height: 1.65;
+  --text-base--line-height: 1.65;
+  --text-lg--line-height: 1.65;
+  --text-xl--line-height: 1.65;
+  --text-2xl--line-height: 1.65;
+  --text-3xl--line-height: 1.65;
+  --text-body: 11pt;
+  --text-h1: 34pt;
+  --text-h2: 26pt;
+  --text-h3: 20pt;
+  --text-h4: 16pt;
+  --text-h5: 14pt;
+  --text-h6: 12pt;
+  --leading-body: 1.65;
+  --leading-heading: 1.25;
+  --font-heading: "Merriweather", "Noto Sans TC";
+}
+
+:root {
+  --accent: #1e40af;
+  --background: #ffffff;
+  --border: #cbd5e1;
+  --destructive: #dc2626;
+  --foreground: #0f172a;
+  --info: #0369a1;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --primary: #1e3a5f;
+  --primary-foreground: #ffffff;
+  --success: #15803d;
+  --warning: #b45309;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #f1f5f9;
+  --block-muted-foreground: #64748b;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.65;
+}

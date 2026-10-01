@@ -1,0 +1,48 @@
+/* pdfwind theme "professional": pdfcn's `professional` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Helvetica 11pt / 1.6, headings Times-Roman (rendered with Lora) 700. Body Helvetica is rendered with Inter.
+   Serif headings (Times-Roman), refined zinc/slate palette, generous margins, formal document feel. shadcn-inspired minimal aesthetic. Ideal for business documents, reports, and official correspondence. */
+@theme {
+  --spacing-paragraph: 10pt;
+  --spacing-component: 14pt;
+  --spacing-section: 28pt;
+  --text-xs--line-height: 1.6;
+  --text-sm--line-height: 1.6;
+  --text-base--line-height: 1.6;
+  --text-lg--line-height: 1.6;
+  --text-xl--line-height: 1.6;
+  --text-2xl--line-height: 1.6;
+  --text-3xl--line-height: 1.6;
+  --text-body: 11pt;
+  --text-h1: 32pt;
+  --text-h2: 24pt;
+  --text-h3: 20pt;
+  --text-h4: 16pt;
+  --text-h5: 14pt;
+  --text-h6: 12pt;
+  --leading-body: 1.6;
+  --leading-heading: 1.25;
+  --font-heading: "Lora", "Noto Sans TC";
+}
+
+:root {
+  --accent: #3b82f6;
+  --background: #ffffff;
+  --border: #e4e4e7;
+  --destructive: #dc2626;
+  --foreground: #18181b;
+  --info: #0ea5e9;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --success: #16a34a;
+  --warning: #d97706;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #f4f4f5;
+  --block-muted-foreground: #71717a;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.6;
+}

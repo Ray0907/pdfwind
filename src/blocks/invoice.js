@@ -9,7 +9,8 @@
 //   footerText?                                 left footer text, defaults to notes
 
 // the reference invoices use a darker muted palette than the library default (better print contrast): applied per block
-export const blockVars = { "--muted-foreground": "#71717a", "--muted": "#f4f4f5" };
+// a named theme hands its own pair through --block-* (see src/themes/<name>.css); without one the pinned values apply
+export const blockVars = { "--muted-foreground": "var(--block-muted-foreground, #71717a)", "--muted": "var(--block-muted, #f4f4f5)" };
 
 export const money = (n, { currency = "USD", locale = "en-US" } = {}) => new Intl.NumberFormat(locale, { style: "currency", currency }).format(n);
 

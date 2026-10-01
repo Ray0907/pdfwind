@@ -1,0 +1,48 @@
+/* pdfwind theme "forest": pdfcn's `forest` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Inter 11pt / 1.6, headings Merriweather 700.
+   Natural deep greens, Merriweather headings for gravitas, Inter body for readability. Earthy and trustworthy. Ideal for sustainability reports, environmental docs, and wellness brands. */
+@theme {
+  --spacing-paragraph: 10pt;
+  --spacing-component: 14pt;
+  --spacing-section: 28pt;
+  --text-xs--line-height: 1.6;
+  --text-sm--line-height: 1.6;
+  --text-base--line-height: 1.6;
+  --text-lg--line-height: 1.6;
+  --text-xl--line-height: 1.6;
+  --text-2xl--line-height: 1.6;
+  --text-3xl--line-height: 1.6;
+  --text-body: 11pt;
+  --text-h1: 32pt;
+  --text-h2: 24pt;
+  --text-h3: 19pt;
+  --text-h4: 15pt;
+  --text-h5: 13pt;
+  --text-h6: 11pt;
+  --leading-body: 1.6;
+  --leading-heading: 1.25;
+  --font-heading: "Merriweather", "Noto Sans TC";
+}
+
+:root {
+  --accent: #16a34a;
+  --background: #ffffff;
+  --border: #bbf7d0;
+  --destructive: #dc2626;
+  --foreground: #14532d;
+  --info: #0ea5e9;
+  --muted: #f0fdf4;
+  --muted-foreground: #4d7c5f;
+  --primary: #15803d;
+  --primary-foreground: #ffffff;
+  --success: #15803d;
+  --warning: #d97706;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #f0fdf4;
+  --block-muted-foreground: #4d7c5f;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.6;
+}

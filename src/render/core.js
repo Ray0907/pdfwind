@@ -3,8 +3,7 @@ import { createSSRApp, h } from "vue";
 import { renderToString } from "@vue/server-renderer";
 import { makeTailwind, unescapeHtml } from "./tailwind.js";
 import init, { PdfRenderer } from "takumi-pdf/no-init";
-
-const FAMILIES = ["Inter", "Noto Sans TC"];
+import { getTheme } from "../themes/index.js";
 
 // Vue component (+ props) or ready-made HTML string -> HTML string
 // Vue's SSR fragment markers (<!--[--> ... <!--]-->) make Takumi drop the text next to them, so comments are stripped
@@ -37,9 +36,10 @@ const resolveImages = async (markup, images, mode, signal) => {
 
 /**
  * @param loadResources async () => { wasm, tailwind: {theme, utilities, preflight}, themeCss (default theme), fonts: [{name, data, style?}] }
+ *   plus `themes`: { [name]: { css: () => string, fonts: [FontLoader] } } for the named themes (src/render/themes.js); only the active theme's css and fonts are touched.
  *   Called once, lazily, on the first render (retried if it rejects). `fonts` may be lazy FontLoaders: { name, ranges, data: () => bytes }; `when: RegExp` registers a face only if the markup matches.
  * @returns renderPdf(component, props?, opts?) -> Promise<Uint8Array>
- *   opts: signal, header/footer (component or HTML string), themeCss (Tailwind @theme / :root CSS),
+ *   opts: signal, theme (name from src/themes/index.js; unknown names throw listing the valid ones), header/footer (component or HTML string), themeCss (Tailwind @theme / :root CSS),
  *   css, fonts (extra), uncoveredText ("placeholder" default), images ([{src,data}]; http(s) <img> URLs are fetched automatically), missingImages ("error" default | "ignore"), plus any takumi-pdf render option (size, margin, metadata, ...).
  */
 export const createRenderPdf = (loadResources) => {
@@ -50,12 +50,16 @@ export const createRenderPdf = (loadResources) => {
     return { res, renderer: new PdfRenderer(), tw: new Map() };
   }).catch((e) => { ready = undefined; throw e; }));
 
-  return async function renderPdf(component, props = {}, { signal, header, footer, themeCss = "", css, fonts = [], uncoveredText = "placeholder", images, missingImages = "error", ...rest } = {}) {
+  return async function renderPdf(component, props = {}, { signal, theme, header, footer, themeCss = "", css, fonts = [], uncoveredText = "placeholder", images, missingImages = "error", ...rest } = {}) {
     signal?.throwIfAborted();
+    const meta = getTheme(theme ?? "default"); // throws before anything is loaded
     const { res, renderer, tw } = await boot();
+    const named = meta.name === "default" ? null : res.themes?.[meta.name];
+    if (meta.name !== "default" && !named) throw new Error(`Theme "${meta.name}" has no resources in this build`);
     const [body, head, foot] = await Promise.all([toHtml(component, props), header ? toHtml(header, props) : "", footer ? toHtml(footer, props) : ""]);
     // ponytail: compiler cached per themeCss string; grows if callers pass unbounded distinct themes
-    themeCss = `${res.themeCss ?? ""}\n${themeCss}`; // default theme first, caller's overrides after
+    // default theme first, then the named theme, then the caller's overrides
+    themeCss = `${res.themeCss ?? ""}\n${named ? await named.css() : ""}\n${themeCss}`;
     if (!tw.has(themeCss)) tw.set(themeCss, makeTailwind(res.tailwind, themeCss).catch((e) => { tw.delete(themeCss); throw e; }));
     const twCss = (await tw.get(themeCss))(body, head, foot);
     const markup = body + head + foot;
@@ -64,11 +68,11 @@ export const createRenderPdf = (loadResources) => {
     let pdf;
     try {
       pdf = await renderer.render(body, {
-        size: "a4", fontFamilies: FAMILIES, ...rest, uncoveredText,
+        size: "a4", fontFamilies: [...new Set([meta.families.body, meta.families.heading, "Noto Sans TC"])], ...rest, uncoveredText,
         // `when`: a face (italic) is only registered when the markup can use it
-        fonts: [...res.fonts.filter((f) => !f.when || f.when.test(markup)).map(({ when, ...f }) => f), ...fonts],
+        fonts: [...(named ? [...named.fonts, ...res.fonts.filter((f) => f.name === "Noto Sans TC")] : res.fonts).filter((f) => !f.when || f.when.test(markup)).map(({ when, ...f }) => f), ...fonts],
         ...(sources.length && { images: { sources } }),
-        css: [twCss, `body{font-family:Inter,"Noto Sans TC"}`, ...(css ? [css] : [])],
+        css: [twCss, `body{font-family:"${meta.families.body}","Noto Sans TC"}`, ...(css ? [css] : [])],
         ...(head && { header: head }), ...(foot && { footer: foot }),
       });
     } catch (e) {

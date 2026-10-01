@@ -1,0 +1,48 @@
+/* pdfwind theme "modern": pdfcn's `modern` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Helvetica 11pt / 1.6, headings Helvetica (rendered with Inter) 600. Body Helvetica is rendered with Inter.
+   All-Helvetica, slate-cool neutrals with subtle violet accent, clean spacing. shadcn-inspired contemporary feel. Ideal for startups, tech companies, and design-forward documents. */
+@theme {
+  --spacing-paragraph: 10pt;
+  --spacing-component: 12pt;
+  --spacing-section: 24pt;
+  --text-xs--line-height: 1.6;
+  --text-sm--line-height: 1.6;
+  --text-base--line-height: 1.6;
+  --text-lg--line-height: 1.6;
+  --text-xl--line-height: 1.6;
+  --text-2xl--line-height: 1.6;
+  --text-3xl--line-height: 1.6;
+  --text-body: 11pt;
+  --text-h1: 28pt;
+  --text-h2: 22pt;
+  --text-h3: 18pt;
+  --text-h4: 16pt;
+  --text-h5: 14pt;
+  --text-h6: 12pt;
+  --leading-body: 1.6;
+  --leading-heading: 1.25;
+  --font-heading: "Inter", "Noto Sans TC";
+}
+
+:root {
+  --accent: #6366f1;
+  --background: #ffffff;
+  --border: #e2e8f0;
+  --destructive: #ef4444;
+  --foreground: #0f172a;
+  --info: #3b82f6;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --primary: #334155;
+  --primary-foreground: #ffffff;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #f1f5f9;
+  --block-muted-foreground: #64748b;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.6;
+}

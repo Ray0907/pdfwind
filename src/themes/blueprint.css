@@ -1,0 +1,48 @@
+/* pdfwind theme "blueprint": pdfcn's `blueprint` theme as Tailwind v4 tokens (see src/themes/index.js for the font files and page margins).
+   pdfcn: body Source Code Pro 10pt / 1.75, headings JetBrains Mono 700.
+   Dark slate palette with cyan accent, JetBrains Mono headings, Source Code Pro body — a technical, precision-first aesthetic. Ideal for API docs, engineering specs, and developer-focused reports. */
+@theme {
+  --spacing-paragraph: 10pt;
+  --spacing-component: 14pt;
+  --spacing-section: 26pt;
+  --text-xs--line-height: 1.75;
+  --text-sm--line-height: 1.75;
+  --text-base--line-height: 1.75;
+  --text-lg--line-height: 1.75;
+  --text-xl--line-height: 1.75;
+  --text-2xl--line-height: 1.75;
+  --text-3xl--line-height: 1.75;
+  --text-body: 10pt;
+  --text-h1: 28pt;
+  --text-h2: 21pt;
+  --text-h3: 17pt;
+  --text-h4: 14pt;
+  --text-h5: 12pt;
+  --text-h6: 10pt;
+  --leading-body: 1.75;
+  --leading-heading: 1.2;
+  --font-heading: "JetBrains Mono", "Noto Sans TC";
+}
+
+:root {
+  --accent: #0891b2;
+  --background: #ffffff;
+  --border: #cbd5e1;
+  --destructive: #e11d48;
+  --foreground: #0f172a;
+  --info: #0284c7;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --primary: #0f172a;
+  --primary-foreground: #f0f9ff;
+  --success: #059669;
+  --warning: #d97706;
+  /* blocks pin a darker muted pair for the default theme (src/blocks/invoice.js blockVars); a named theme hands its own through */
+  --block-muted: #f1f5f9;
+  --block-muted-foreground: #475569;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.75;
+}
