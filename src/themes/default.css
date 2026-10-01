@@ -1,0 +1,86 @@
+/* pdfwind default theme: pdfcn's `minimal` theme as Tailwind v4 tokens.
+
+   WHY THE SIZES LOOK ODD (text-sm = 12pt, text-base = 15pt, text-body = 11pt):
+   pdfcn defines its type scale in PDF points, not CSS px. Its scale is
+     xs 10 / sm 12 / base 15 / lg 18 / xl 22 / 2xl 28 / 3xl 36 pt, document body text 11 pt,
+   and pdfwind mirrors it one to one so a component looks the same in both libraries. The consequence:
+     - text-sm (12pt) is LARGER than the 11pt body, and text-base (15pt) is a big step up. Tailwind's own
+       text-sm is 14px = 10.5pt, so classes with the same name mean something else here.
+     - `text-body` (11pt) is the document's normal size; use it (or no size class) for running text.
+     - `--spacing: 4pt` does the same for spacing: p-4 = 16pt (21.3px), pdfcn's spacing[4]. Tailwind's p-4 is 16px.
+   Everything is 1pt = 1.333px (96/72), PDFs are physical, so pt is the natural unit.
+   To use Tailwind's px scale instead, override these tokens in the `themeCss` you pass to renderPdf
+   (e.g. `@theme { --spacing: 0.25rem; --text-sm: 0.875rem; }`); components keep working, only sizes change.
+   Units: spacing keys 0.5, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16 = 2, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64 pt. */
+@theme {
+  --spacing: 4pt;
+  --spacing-paragraph: 14pt;
+  --spacing-component: 18pt;
+  --spacing-section: 36pt;
+
+  --text-xs: 10pt;
+  --text-xs--line-height: 1.65;
+  --text-sm: 12pt;
+  --text-sm--line-height: 1.65;
+  --text-base: 15pt;
+  --text-base--line-height: 1.65;
+  --text-lg: 18pt;
+  --text-lg--line-height: 1.65;
+  --text-xl: 22pt;
+  --text-xl--line-height: 1.65;
+  --text-2xl: 28pt;
+  --text-2xl--line-height: 1.65;
+  --text-3xl: 36pt;
+  --text-3xl--line-height: 1.65;
+  --text-body: 11pt;
+  --text-h1: 24pt;
+  --text-h2: 20pt;
+  --text-h3: 16pt;
+  --text-h4: 14pt;
+  --text-h5: 12pt;
+  --text-h6: 10pt;
+
+  --leading-body: 1.65;
+  --leading-heading: 1.25;
+
+  --radius-sm: 2pt;
+  --radius-md: 4pt;
+  --radius-lg: 8pt;
+}
+
+/* semantic color tokens: components use bg-primary, text-muted-foreground, border-border ... */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #18181b;
+  --muted: #fafafa;
+  --muted-foreground: #a1a1aa;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --border: #e4e4e7;
+  --accent: #71717a;
+  --destructive: #b91c1c;
+  --success: #15803d;
+  --warning: #a16207;
+  --info: #0369a1;
+}
+
+body {
+  color: var(--foreground);
+  font-size: 11pt;
+  line-height: 1.65;
+}
