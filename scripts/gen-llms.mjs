@@ -241,7 +241,7 @@ ${EXAMPLES.map((e) => `### ${e.title}\n\n\`\`\`js\n${e.code}\`\`\`\n\nExpected t
 // ---------------------------------------------------------------- llms.txt (index)
 const index = `# pdfwind
 
-> Vue 3 + Tailwind v4 components and document blocks (invoices, reports, forms, tickets, labels) that render to PDF with Takumi. Same code in Node and in the browser, no headless browser. Feature target: pdfcn. Not published to npm: clone the repository.
+> Vue 3 + Tailwind v4 components and document blocks (invoices, reports, forms, tickets, labels) that render to PDF with Takumi. Same code in Node and in the browser, no headless browser. Feature target: pdfcn. Alpha 0.1.x on npm: \`npm install pdfwind vue\`.
 
 pdfwind has ${components.length} components, ${blocks.length} blocks, ${TH.themeNames.length} runtime-switchable themes (default + pdfcn's nine) with bundled fonts, and a Theme Builder in the playground.
 Call \`renderPdf(Component, props, { theme, header, footer, themeCss, size, margin })\` from \`pdfwind/node\` (Node) or \`pdfwind/browser\` (browser, Vite); it returns PDF bytes. SFCs need Vite's Vue plugin and SSR loading. See README.md for installation from a local tarball; not published to npm yet.

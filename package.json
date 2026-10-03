@@ -1,7 +1,6 @@
 {
   "name": "pdfwind",
   "version": "0.1.0",
-  "private": true,
   "description": "Vue 3 and Tailwind v4 PDF components rendered with Takumi",
   "type": "module",
   "license": "MIT",
@@ -13,6 +12,7 @@
   "packageManager": "pnpm@10.32.1",
   "sideEffects": ["**/*.css", "**/*.vue"],
   "files": ["src", "fonts/*.woff2", "fonts/OFL-*.txt", "LICENSE", "THIRD_PARTY_NOTICES.md", "README.md", "llms*.txt"],
+  "publishConfig": { "access": "public" },
   "exports": {
     ".": "./src/index.js",
     "./node": "./src/render/node.js",

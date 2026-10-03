@@ -17,22 +17,18 @@ Vue components in, paged PDFs out — in Node or the browser, without a headless
 
 ## Status and scope
 
-**Alpha 0.1.0 — not published to npm.** Clone and install a local tarball; the package remains private. **Vue only**, not React. A **[live playground](https://pdfwind.ray-tien0907.workers.dev)** is hosted on Cloudflare (static build; pick any component or block, switch themes, open the Theme Builder), and you can also run it locally.
+**Alpha 0.1.0, published on npm as [`pdfwind`](https://www.npmjs.com/package/pdfwind)** (`npm install pdfwind vue`); APIs may still change. **Vue only**, not React. A **[live playground](https://pdfwind.ray-tien0907.workers.dev)** is hosted on Cloudflare (static build; pick any component or block, switch themes, open the Theme Builder), and you can also run it locally.
 The components are Vue SFCs: use a Vite-like bundler with the Vue plugin, `?raw`, `?url` and `import.meta.glob`. Ordinary Node cannot import `.vue` files; the Node example below uses Vite SSR.
 
 ## Use with Vue / Node
 
-Requires **Node 22.12+**. From a clone, pack the library, then install it in a separate project:
+Requires **Node 22.12+**. In a new project:
 
 ```sh
-git clone https://github.com/Ray0907/pdfwind.git
-cd pdfwind
-pnpm install
-npm pack --pack-destination /tmp
-mkdir -p /tmp/readme-consumer && cd /tmp/readme-consumer
+mkdir my-pdf && cd my-pdf
 npm init -y
 npm pkg set type=module
-npm install ../pdfwind-0.1.0.tgz vue
+npm install pdfwind vue
 npm install -D vite @vitejs/plugin-vue
 ```
 
